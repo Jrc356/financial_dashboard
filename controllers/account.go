@@ -14,7 +14,7 @@ type AccountController struct {
 }
 
 func (c *AccountController) CreateRoutes(rg *gin.RouterGroup) {
-	rg.PUT("", c.CreateAccount)
+	rg.POST("", c.CreateAccount)
 	rg.GET("", c.ListAccounts)
 	rg.GET("/:id", c.GetAccount)
 	rg.PUT("/:id", c.UpdateAccount)
@@ -27,6 +27,12 @@ func (controller *AccountController) CreateAccount(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	if err := account.Validate(); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	result := controller.DB.Create(&account)
 	if result.Error != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
@@ -57,17 +63,22 @@ func (controller *AccountController) GetAccount(context *gin.Context) {
 }
 
 func (controller *AccountController) UpdateAccount(context *gin.Context) {
+	var updatedAccount models.Account
+	if err := context.BindJSON(&updatedAccount); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := updatedAccount.Validate(); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	var account models.Account
 	result := controller.DB.First(&account, context.Param("id"))
 	if result.Error != nil {
 		log.Println(result.Error)
 		context.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
-		return
-	}
-
-	var updatedAccount models.Account
-	if err := context.BindJSON(&updatedAccount); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
