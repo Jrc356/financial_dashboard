@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -28,7 +29,7 @@ func (controller *AssetController) CreateAsset(context *gin.Context) {
 		return
 	}
 
-	if err := asset.Validate(); err != nil {
+	if err := ValidateAsset(asset); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -69,7 +70,7 @@ func (controller *AssetController) UpdateAsset(context *gin.Context) {
 		return
 	}
 
-	if err := updatedAsset.Validate(); err != nil {
+	if err := ValidateAsset(updatedAsset); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -109,4 +110,14 @@ func (controller *AssetController) DeleteAsset(context *gin.Context) {
 	}
 
 	context.JSON(http.StatusOK, asset)
+}
+
+func ValidateAsset(a models.Asset) error {
+	if a.Name == "" {
+		return fmt.Errorf("no asset name provided")
+	}
+	if !models.IsValidAsset(a.Type) {
+		return fmt.Errorf("unknown or invalid asset type: %s", a.Type)
+	}
+	return nil
 }
