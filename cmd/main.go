@@ -31,6 +31,7 @@ func init() {
 
 	db.AutoMigrate(
 		&models.Asset{},
+		&models.AssetValue{},
 	)
 }
 

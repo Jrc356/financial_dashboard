@@ -38,3 +38,9 @@ type Asset struct {
 	TaxBucket    TaxBucket `json:"taxBucket"`
 	CurrentValue float32   `json:"currentValue"`
 }
+
+type AssetValue struct {
+	gorm.Model
+	Asset Asset
+	Value float64
+}
