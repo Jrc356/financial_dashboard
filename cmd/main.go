@@ -30,14 +30,14 @@ func init() {
 	}
 
 	db.AutoMigrate(
-		&models.Account{},
+		&models.Asset{},
 	)
 }
 
 func main() {
 	router := gin.Default()
-	accountsController := controllers.AccountController{DB: db}
-	accountsRouter := router.Group("/account")
-	accountsController.CreateRoutes(accountsRouter)
+	assetsController := controllers.AssetController{DB: db}
+	assetsRouter := router.Group("/asset")
+	assetsController.CreateRoutes(assetsRouter)
 	router.Run()
 }
