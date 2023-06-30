@@ -1,12 +1,11 @@
 package asset
 
 import (
+	"time"
+
 	"github.com/Jrc356/financial_dashboard/pkg/tax"
 	"gorm.io/gorm"
 )
-
-// TODO: think this would be best converted into assets and add a tax bucket column
-// see the assets table I have in sheets
 
 type AssetType string
 
@@ -18,15 +17,18 @@ const (
 )
 
 type Asset struct {
-	gorm.Model
-	Name         string     `json:"name" gorm:"uniqueIndex" binding:"required"`
-	Type         AssetType  `json:"type"`
-	TaxBucket    tax.Bucket `json:"taxBucket"`
-	CurrentValue float32    `json:"currentValue"`
+	Name      string     `json:"name" gorm:"primaryKey" binding:"required"`
+	Type      AssetType  `json:"type"`
+	TaxBucket tax.Bucket `json:"taxBucket"`
+	Values    AssetValue `gorm:"foreignKey:AssetName;references:Name"`
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
 type AssetValue struct {
 	gorm.Model
-	Asset Asset   `json:"asset" binding:"required"`
-	Value float32 `json:"value" binding:"required"`
+	AssetName string  `json:"assetName"`
+	Value     float32 `json:"value"`
 }
