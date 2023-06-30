@@ -18,7 +18,7 @@ const (
 	HSA        AssetType = "hsa"
 )
 
-func isValidAsset(at AssetType) bool {
+func IsValidAsset(at AssetType) bool {
 	switch at {
 	case Savings:
 		return true
@@ -35,17 +35,23 @@ func isValidAsset(at AssetType) bool {
 
 type Asset struct {
 	gorm.Model
-	Name string    `json:"name" gorm:"uniqueIndex"`
-	Type AssetType `json:"type"`
-	// TODO
+	Name         string    `json:"name" gorm:"uniqueIndex"`
+	Type         AssetType `json:"type"`
+	TaxBucket    TaxBucket `json:"taxBucket"`
+	CurrentValue float32   `json:"currentValue"`
 }
 
 func (a *Asset) Validate() error {
 	if a.Name == "" {
 		return fmt.Errorf("no asset name provided")
 	}
-	if !isValidAsset(a.Type) {
+	if !IsValidAsset(a.Type) {
 		return fmt.Errorf("unknown or invalid asset type: %s", a.Type)
 	}
 	return nil
+}
+
+type AssetValue struct {
+	Asset Asset
+	Value float64
 }
