@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var db *gorm.DB
@@ -23,7 +24,9 @@ func init() {
 	)
 
 	var err error
-	db, err = gorm.Open(postgres.Open(connStr), &gorm.Config{})
+	db, err = gorm.Open(postgres.Open(connStr), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		log.Panicln(err)
 	}
