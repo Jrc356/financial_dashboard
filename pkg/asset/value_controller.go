@@ -1,7 +1,6 @@
 package asset
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -14,9 +13,9 @@ type AssetValueController struct {
 }
 
 func (c *AssetValueController) CreateRoutes(rg *gin.RouterGroup) {
-	rg.POST("/new", c.CreateAssetValue)
-	rg.GET("", c.ListAssetValues)
-	rg.GET("/:asset", c.GetAssetValue)
+	rg.GET("", c.ListAllAssetValues)
+	rg.GET("/:asset", c.GetAssetValues)
+	rg.POST("/:asset", c.CreateAssetValue)
 }
 
 func (controller *AssetValueController) CreateAssetValue(context *gin.Context) {
@@ -25,26 +24,17 @@ func (controller *AssetValueController) CreateAssetValue(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	var asset Asset
-	result := controller.DB.First(&assetValue.Asset)
+	assetValue.AssetName = context.Param("asset")
+	result := controller.DB.Create(&assetValue)
 	if result.Error != nil {
-		log.Println(result.Error)
+		// TODO: better handling
 		context.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 		return
 	}
-
-	assetValue.Asset = asset
-	result = controller.DB.Create(&assetValue)
-	if result.Error != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
-		return
-	}
-
 	context.JSON(http.StatusOK, assetValue)
 }
 
-func (controller *AssetValueController) ListAssetValues(context *gin.Context) {
+func (controller *AssetValueController) ListAllAssetValues(context *gin.Context) {
 	var assetValues []AssetValue
 	result := controller.DB.Find(&assetValues)
 	if result.Error != nil {
@@ -54,13 +44,12 @@ func (controller *AssetValueController) ListAssetValues(context *gin.Context) {
 	context.JSON(http.StatusOK, assetValues)
 }
 
-func (controller *AssetValueController) GetAssetValue(context *gin.Context) {
-	assetValue := AssetValue{Asset: Asset{Name: context.Param("asset")}}
-	result := controller.DB.Find(&assetValue)
+func (controller *AssetValueController) GetAssetValues(context *gin.Context) {
+	var assetValues []AssetValue
+	result := controller.DB.Where("asset_name = ?", context.Param("asset")).Find(&assetValues)
 	if result.Error != nil {
-		log.Println(result.Error)
 		context.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 		return
 	}
-	context.JSON(http.StatusOK, assetValue)
+	context.JSON(http.StatusOK, assetValues)
 }
