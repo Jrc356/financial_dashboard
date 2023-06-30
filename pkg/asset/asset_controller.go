@@ -1,11 +1,10 @@
-package controllers
+package asset
 
 import (
 	"fmt"
 	"log"
 	"net/http"
 
-	"github.com/Jrc356/financial_dashboard/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -23,7 +22,7 @@ func (c *AssetController) CreateRoutes(rg *gin.RouterGroup) {
 }
 
 func (controller *AssetController) CreateAsset(context *gin.Context) {
-	var asset models.Asset
+	var asset Asset
 	if err := context.BindJSON(&asset); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -43,7 +42,7 @@ func (controller *AssetController) CreateAsset(context *gin.Context) {
 }
 
 func (controller *AssetController) ListAssets(context *gin.Context) {
-	var assets []models.Asset
+	var assets []Asset
 	result := controller.DB.Find(&assets)
 	if result.Error != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
@@ -53,7 +52,7 @@ func (controller *AssetController) ListAssets(context *gin.Context) {
 }
 
 func (controller *AssetController) GetAsset(context *gin.Context) {
-	var asset models.Asset
+	var asset Asset
 	result := controller.DB.First(&asset, context.Param("id"))
 	if result.Error != nil {
 		log.Println(result.Error)
@@ -64,7 +63,7 @@ func (controller *AssetController) GetAsset(context *gin.Context) {
 }
 
 func (controller *AssetController) UpdateAsset(context *gin.Context) {
-	var updatedAsset models.Asset
+	var updatedAsset Asset
 	if err := context.BindJSON(&updatedAsset); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -75,7 +74,7 @@ func (controller *AssetController) UpdateAsset(context *gin.Context) {
 		return
 	}
 
-	var asset models.Asset
+	var asset Asset
 	result := controller.DB.First(&asset, context.Param("id"))
 	if result.Error != nil {
 		log.Println(result.Error)
@@ -94,7 +93,7 @@ func (controller *AssetController) UpdateAsset(context *gin.Context) {
 }
 
 func (controller *AssetController) DeleteAsset(context *gin.Context) {
-	var asset models.Asset
+	var asset Asset
 	result := controller.DB.First(&asset, context.Param("id"))
 	if result.Error != nil {
 		log.Println(result.Error)
@@ -112,11 +111,16 @@ func (controller *AssetController) DeleteAsset(context *gin.Context) {
 	context.JSON(http.StatusOK, asset)
 }
 
-func ValidateAsset(a models.Asset) error {
+func ValidateAsset(a Asset) error {
 	if a.Name == "" {
 		return fmt.Errorf("no asset name provided")
 	}
-	if !models.IsValidAsset(a.Type) {
+	switch a.Type {
+	case Savings:
+	case Checking:
+	case Retirement:
+	case HSA:
+	default:
 		return fmt.Errorf("unknown or invalid asset type: %s", a.Type)
 	}
 	return nil

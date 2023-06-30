@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Jrc356/financial_dashboard/controllers"
-	"github.com/Jrc356/financial_dashboard/models"
+	"github.com/Jrc356/financial_dashboard/pkg/asset"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -30,15 +29,20 @@ func init() {
 	}
 
 	db.AutoMigrate(
-		&models.Asset{},
-		&models.AssetValue{},
+		&asset.Asset{},
+		&asset.AssetValue{},
 	)
 }
 
 func main() {
 	router := gin.Default()
-	assetsController := controllers.AssetController{DB: db}
+
+	assetsController := asset.AssetController{DB: db}
 	assetsRouter := router.Group("/asset")
 	assetsController.CreateRoutes(assetsRouter)
+	assetValueController := asset.AssetValueController{DB: db}
+	assetValueRouter := assetsRouter.Group("/value")
+	assetValueController.CreateRoutes(assetValueRouter)
+
 	router.Run()
 }
