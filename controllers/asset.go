@@ -1,11 +1,10 @@
-package asset
+package controllers
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
-	"github.com/Jrc356/financial_dashboard/pkg/tax"
+	"github.com/Jrc356/financial_dashboard/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -23,13 +22,13 @@ func (c *AssetController) CreateRoutes(rg *gin.RouterGroup) {
 }
 
 func (controller *AssetController) CreateAsset(context *gin.Context) {
-	var asset Asset
+	var asset models.Asset
 	if err := context.BindJSON(&asset); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := ValidateAsset(asset); err != nil {
+	if err := models.ValidateAsset(asset); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -43,7 +42,7 @@ func (controller *AssetController) CreateAsset(context *gin.Context) {
 }
 
 func (controller *AssetController) ListAssets(context *gin.Context) {
-	var assets []Asset
+	var assets []models.Asset
 	result := controller.DB.Find(&assets)
 	if result.Error != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
@@ -53,7 +52,7 @@ func (controller *AssetController) ListAssets(context *gin.Context) {
 }
 
 func (controller *AssetController) GetAsset(context *gin.Context) {
-	var asset Asset
+	var asset models.Asset
 	result := controller.DB.First(&asset, context.Param("id"))
 	if result.Error != nil {
 		log.Println(result.Error)
@@ -64,18 +63,18 @@ func (controller *AssetController) GetAsset(context *gin.Context) {
 }
 
 func (controller *AssetController) UpdateAsset(context *gin.Context) {
-	var updatedAsset Asset
+	var updatedAsset models.Asset
 	if err := context.BindJSON(&updatedAsset); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := ValidateAsset(updatedAsset); err != nil {
+	if err := models.ValidateAsset(updatedAsset); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	var asset Asset
+	var asset models.Asset
 	result := controller.DB.First(&asset, context.Param("id"))
 	if result.Error != nil {
 		log.Println(result.Error)
@@ -94,7 +93,7 @@ func (controller *AssetController) UpdateAsset(context *gin.Context) {
 }
 
 func (controller *AssetController) DeleteAsset(context *gin.Context) {
-	var asset Asset
+	var asset models.Asset
 	result := controller.DB.First(&asset, context.Param("id"))
 	if result.Error != nil {
 		log.Println(result.Error)
@@ -112,28 +111,38 @@ func (controller *AssetController) DeleteAsset(context *gin.Context) {
 	context.JSON(http.StatusOK, asset)
 }
 
-func ValidateAsset(a Asset) error {
-	if a.Name == "" {
-		return fmt.Errorf("no asset name provided")
+func (controller *AssetController) CreateAssetValue(context *gin.Context) {
+	var assetValue models.AssetValue
+	if err := context.BindJSON(&assetValue); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
-	switch a.Type {
-	case Savings:
-	case Checking:
-	case Retirement:
-	case HSA:
-	default:
-		return fmt.Errorf("unknown or invalid asset type: %s", a.Type)
+	assetValue.AssetName = context.Param("asset")
+	result := controller.DB.Create(&assetValue)
+	if result.Error != nil {
+		// TODO: better handling
+		context.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+		return
 	}
+	context.JSON(http.StatusOK, assetValue)
+}
 
-	if a.TaxBucket != "" {
-		switch a.TaxBucket {
-		case tax.TaxDeferred:
-		case tax.Taxable:
-		case tax.Roth:
-		default:
-			return fmt.Errorf("unknown or invalid asset taxBucket: %s", a.TaxBucket)
-		}
+func (controller *AssetController) ListAllAssetValues(context *gin.Context) {
+	var assetValues []models.AssetValue
+	result := controller.DB.Find(&assetValues)
+	if result.Error != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+		return
 	}
+	context.JSON(http.StatusOK, assetValues)
+}
 
-	return nil
+func (controller *AssetController) GetAssetValues(context *gin.Context) {
+	var assetValues []models.AssetValue
+	result := controller.DB.Where("asset_name = ?", context.Param("asset")).Find(&assetValues)
+	if result.Error != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+		return
+	}
+	context.JSON(http.StatusOK, assetValues)
 }

@@ -4,14 +4,17 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Jrc356/financial_dashboard/pkg/asset"
+	"github.com/Jrc356/financial_dashboard/controllers"
+	"github.com/Jrc356/financial_dashboard/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
-var db *gorm.DB
+var (
+	db *gorm.DB
+)
 
 func init() {
 	connStr := fmt.Sprintf(
@@ -32,20 +35,57 @@ func init() {
 	}
 
 	db.AutoMigrate(
-		&asset.Asset{},
-		&asset.AssetValue{},
+		&models.Asset{},
+		&models.AssetValue{},
+		&models.Liability{},
+		&models.LiabilityValue{},
 	)
+}
+
+func createAssetControllers(router *gin.Engine) {
+	assetsController := controllers.AssetController{DB: db}
+
+	assetsRouter := router.Group("/asset")
+	{
+		assetsRouter.POST("", assetsController.CreateAsset)
+		assetsRouter.GET("", assetsController.ListAssets)
+		assetsRouter.GET("/:id", assetsController.GetAsset)
+		assetsRouter.PUT("/:id", assetsController.UpdateAsset)
+		assetsRouter.DELETE("/:id", assetsController.DeleteAsset)
+	}
+
+	assetValueRouter := assetsRouter.Group("/value")
+	{
+		assetValueRouter.GET("", assetsController.ListAllAssetValues)
+		assetValueRouter.GET("/:asset", assetsController.GetAssetValues)
+		assetValueRouter.POST("/:asset", assetsController.CreateAssetValue)
+	}
+}
+
+func createLiabilityControllers(router *gin.Engine) {
+	liabilitiesController := controllers.LiabilityController{DB: db}
+
+	liabilitiesRouter := router.Group("/liability")
+	{
+		liabilitiesRouter.POST("", liabilitiesController.CreateLiability)
+		liabilitiesRouter.GET("", liabilitiesController.ListLiabilities)
+		liabilitiesRouter.GET("/:id", liabilitiesController.GetLiability)
+		liabilitiesRouter.PUT("/:id", liabilitiesController.UpdateLiability)
+		liabilitiesRouter.DELETE("/:id", liabilitiesController.DeleteLiability)
+	}
+
+	liabilityValueRouter := liabilitiesRouter.Group("/value")
+	{
+		liabilityValueRouter.GET("", liabilitiesController.ListAllLiabilityValues)
+		liabilityValueRouter.GET("/:liability", liabilitiesController.GetLiabilityValues)
+		liabilityValueRouter.POST("/:liability", liabilitiesController.CreateLiabilityValue)
+	}
+
 }
 
 func main() {
 	router := gin.Default()
-
-	assetsController := asset.AssetController{DB: db}
-	assetsRouter := router.Group("/asset")
-	assetsController.CreateRoutes(assetsRouter)
-	assetValueController := asset.AssetValueController{DB: db}
-	assetValueRouter := assetsRouter.Group("/value")
-	assetValueController.CreateRoutes(assetValueRouter)
-
+	createAssetControllers(router)
+	createLiabilityControllers(router)
 	router.Run()
 }
