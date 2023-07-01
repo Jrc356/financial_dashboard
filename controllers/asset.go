@@ -16,6 +16,28 @@ type AssetController struct {
 	DB *gorm.DB
 }
 
+func NewAssetController(db *gorm.DB, router *gin.Engine) {
+	assetsController := AssetController{DB: db}
+
+	assetsRouter := router.Group("/asset")
+	{
+		assetsRouter.POST("", assetsController.CreateAsset)
+		assetsRouter.GET("", assetsController.ListAssets)
+		assetsRouter.GET("/values", assetsController.ListAllAssetValues)
+	}
+
+	assetRouter := assetsRouter.Group("/:" + AssetNameParam)
+	{
+		assetRouter.GET("", assetsController.GetAsset)
+		assetRouter.PUT("", assetsController.UpdateAsset)
+		assetRouter.DELETE("", assetsController.DeleteAsset)
+
+		assetRouter.GET("/value", assetsController.GetAssetValues)
+		assetRouter.POST("/value", assetsController.CreateAssetValue)
+
+	}
+}
+
 func (controller *AssetController) CreateAsset(context *gin.Context) {
 	var asset models.Asset
 	if err := context.BindJSON(&asset); err != nil {

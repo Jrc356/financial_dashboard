@@ -10,8 +10,33 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	LiabilityNameParam = "liabilityName"
+)
+
 type LiabilityController struct {
 	DB *gorm.DB
+}
+
+func NewLiabilityController(db *gorm.DB, router *gin.Engine) {
+	liabilitiesController := LiabilityController{DB: db}
+
+	liabilitiesRouter := router.Group("/liability")
+	{
+		liabilitiesRouter.POST("", liabilitiesController.CreateLiability)
+		liabilitiesRouter.GET("", liabilitiesController.ListLiabilities)
+		liabilitiesRouter.GET("/values", liabilitiesController.ListAllLiabilityValues)
+	}
+
+	liabilityRouter := liabilitiesRouter.Group("/:" + LiabilityNameParam)
+	{
+		liabilityRouter.GET("", liabilitiesController.GetLiability)
+		liabilityRouter.PUT("", liabilitiesController.UpdateLiability)
+		liabilityRouter.DELETE("", liabilitiesController.DeleteLiability)
+
+		liabilityRouter.GET("/value", liabilitiesController.GetLiabilityValues)
+		liabilityRouter.POST("/value", liabilitiesController.CreateLiabilityValue)
+	}
 }
 
 func (controller *LiabilityController) CreateLiability(context *gin.Context) {

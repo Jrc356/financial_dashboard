@@ -42,52 +42,9 @@ func init() {
 	)
 }
 
-func createAssetControllers(router *gin.Engine) {
-	assetsController := controllers.AssetController{DB: db}
-
-	assetsRouter := router.Group("/asset")
-	{
-		assetsRouter.POST("", assetsController.CreateAsset)
-		assetsRouter.GET("", assetsController.ListAssets)
-		assetsRouter.GET("/values", assetsController.ListAllAssetValues)
-	}
-
-	assetRouter := assetsRouter.Group("/:assetName")
-	{
-		assetRouter.GET("", assetsController.GetAsset)
-		assetRouter.PUT("", assetsController.UpdateAsset)
-
-		assetRouter.GET("/value", assetsController.GetAssetValues)
-		assetRouter.POST("/value", assetsController.CreateAssetValue)
-
-		assetRouter.DELETE("", assetsController.DeleteAsset)
-	}
-}
-
-func createLiabilityControllers(router *gin.Engine) {
-	liabilitiesController := controllers.LiabilityController{DB: db}
-
-	liabilitiesRouter := router.Group("/liability")
-	{
-		liabilitiesRouter.POST("", liabilitiesController.CreateLiability)
-		liabilitiesRouter.GET("", liabilitiesController.ListLiabilities)
-		liabilitiesRouter.GET("/:liabilityName", liabilitiesController.GetLiability)
-		liabilitiesRouter.PUT("/:liabilityName", liabilitiesController.UpdateLiability)
-		liabilitiesRouter.DELETE("/:liabilityName", liabilitiesController.DeleteLiability)
-	}
-
-	liabilityValueRouter := liabilitiesRouter.Group("/value")
-	{
-		liabilityValueRouter.GET("", liabilitiesController.ListAllLiabilityValues)
-		liabilityValueRouter.GET("/:liability", liabilitiesController.GetLiabilityValues)
-		liabilityValueRouter.POST("/:liability", liabilitiesController.CreateLiabilityValue)
-	}
-
-}
-
 func main() {
 	router := gin.Default()
-	createAssetControllers(router)
-	createLiabilityControllers(router)
+	controllers.NewAssetController(db, router)
+	controllers.NewLiabilityController(db, router)
 	router.Run()
 }
