@@ -14,14 +14,6 @@ type LiabilityController struct {
 	DB *gorm.DB
 }
 
-func (c *LiabilityController) CreateRoutes(rg *gin.RouterGroup) {
-	rg.POST("", c.CreateLiability)
-	rg.GET("", c.ListLiabilities)
-	rg.GET("/:id", c.GetLiability)
-	rg.PUT("/:id", c.UpdateLiability)
-	rg.DELETE("/:id", c.DeleteLiability)
-}
-
 func (controller *LiabilityController) CreateLiability(context *gin.Context) {
 	var liability models.Liability
 	if err := context.BindJSON(&liability); err != nil {

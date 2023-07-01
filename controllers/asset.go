@@ -13,14 +13,6 @@ type AssetController struct {
 	DB *gorm.DB
 }
 
-func (c *AssetController) CreateRoutes(rg *gin.RouterGroup) {
-	rg.POST("", c.CreateAsset)
-	rg.GET("", c.ListAssets)
-	rg.GET("/:id", c.GetAsset)
-	rg.PUT("/:id", c.UpdateAsset)
-	rg.DELETE("/:id", c.DeleteAsset)
-}
-
 func (controller *AssetController) CreateAsset(context *gin.Context) {
 	var asset models.Asset
 	if err := context.BindJSON(&asset); err != nil {
