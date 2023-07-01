@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
+	"math/rand"
 
 	"github.com/Jrc356/financial_dashboard/controllers"
 	"github.com/Jrc356/financial_dashboard/models"
@@ -15,6 +17,12 @@ import (
 var (
 	db *gorm.DB
 )
+
+func randomDollarAmount() float64 {
+	val := rand.Float64() * float64(rand.Int63n(10000))
+	ratio := math.Pow(10, 2)
+	return math.Round(val*ratio) / ratio
+}
 
 func init() {
 	connStr := fmt.Sprintf(
@@ -34,17 +42,97 @@ func init() {
 		log.Panicln(err)
 	}
 
+	db.Migrator().DropTable(&models.Asset{})
+	db.Migrator().DropTable(&models.AssetValue{})
+	db.Migrator().DropTable(&models.Liability{})
+	db.Migrator().DropTable(&models.LiabilityValue{})
+
 	db.AutoMigrate(
 		&models.Asset{},
 		&models.AssetValue{},
 		&models.Liability{},
 		&models.LiabilityValue{},
 	)
+
+	// Test Data
+	assets := []models.Asset{
+		{
+			Name: "Our Savings Account",
+			Type: models.Savings,
+		},
+		{
+			Name: "Our Checking Account",
+			Type: models.Checking,
+		},
+		{
+			Name:      "My 401k",
+			Type:      models.Retirement,
+			TaxBucket: models.TaxDeferred,
+		},
+		{
+			Name:      "SO 401k",
+			Type:      models.Retirement,
+			TaxBucket: models.TaxDeferred,
+		},
+		{
+			Name:      "My IRA",
+			Type:      models.Retirement,
+			TaxBucket: models.Roth,
+		},
+		{
+			Name:      "SO IRA",
+			Type:      models.Retirement,
+			TaxBucket: models.Roth,
+		},
+		{
+			Name:      "House",
+			Type:      models.Retirement,
+			TaxBucket: models.Roth,
+		},
+	}
+	for _, asset := range assets {
+		if err := models.CreateAsset(db, asset); err != nil {
+			log.Panic(err)
+		}
+
+		value := models.AssetValue{
+			AssetName: asset.Name,
+			Value:     randomDollarAmount(),
+		}
+
+		if err := models.CreateAssetValue(db, value); err != nil {
+			log.Panic(err)
+		}
+	}
+
+	liabilities := []string{
+		"Student Loan",
+		"Mortgage",
+		"Auto Loan",
+		"Credit Card",
+	}
+	for _, liabilityName := range liabilities {
+		liability := models.Liability{
+			Name: liabilityName,
+		}
+		if err := models.CreateLiability(db, liability); err != nil {
+			log.Panic(err)
+		}
+
+		value := models.LiabilityValue{
+			LiabilityName: liabilityName,
+			Value:         randomDollarAmount(),
+		}
+		if err := models.CreateLiabilityValue(db, value); err != nil {
+			log.Panic(err)
+		}
+	}
 }
 
 func main() {
 	router := gin.Default()
 	controllers.NewAssetController(db, router)
 	controllers.NewLiabilityController(db, router)
+	controllers.NewFinanceController(db, router)
 	router.Run()
 }

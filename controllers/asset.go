@@ -38,6 +38,34 @@ func NewAssetController(db *gorm.DB, router *gin.Engine) {
 	}
 }
 
+type AssetResponse struct {
+	Name      string
+	Type      models.AssetType
+	TaxBucket models.TaxBucket
+}
+
+func AssetToAssetResponse(asset models.Asset) AssetResponse {
+	return AssetResponse{
+		Name:      asset.Name,
+		Type:      asset.Type,
+		TaxBucket: asset.TaxBucket,
+	}
+}
+
+type AssetValueResponse struct {
+	AssetName string
+	Value     float64
+	Date      string
+}
+
+func AssetValueToAssetValueResponse(av models.AssetValue) AssetValueResponse {
+	return AssetValueResponse{
+		AssetName: av.AssetName,
+		Value:     av.Value,
+		Date:      av.CreatedAt.Format("01-02-2006"),
+	}
+}
+
 func (controller *AssetController) CreateAsset(context *gin.Context) {
 	var asset models.Asset
 	if err := context.BindJSON(&asset); err != nil {
@@ -50,7 +78,7 @@ func (controller *AssetController) CreateAsset(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	context.JSON(http.StatusOK, models.AssetToAssetResponse(asset))
+	context.JSON(http.StatusOK, AssetToAssetResponse(asset))
 }
 
 func (controller *AssetController) ListAssets(context *gin.Context) {
@@ -60,9 +88,9 @@ func (controller *AssetController) ListAssets(context *gin.Context) {
 		return
 	}
 
-	responses := []models.AssetResponse{}
+	responses := []AssetResponse{}
 	for _, asset := range assets {
-		responses = append(responses, models.AssetToAssetResponse(asset))
+		responses = append(responses, AssetToAssetResponse(asset))
 	}
 	context.JSON(http.StatusOK, responses)
 }
@@ -73,7 +101,7 @@ func (controller *AssetController) GetAsset(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	context.JSON(http.StatusOK, models.AssetToAssetResponse(asset))
+	context.JSON(http.StatusOK, asset)
 }
 
 func (controller *AssetController) UpdateAsset(context *gin.Context) {
@@ -89,7 +117,7 @@ func (controller *AssetController) UpdateAsset(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, models.AssetToAssetResponse(asset))
+	context.JSON(http.StatusOK, AssetToAssetResponse(asset))
 }
 
 func (controller *AssetController) DeleteAsset(context *gin.Context) {
@@ -98,7 +126,7 @@ func (controller *AssetController) DeleteAsset(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	context.JSON(http.StatusOK, models.AssetToAssetResponse(asset))
+	context.JSON(http.StatusOK, AssetToAssetResponse(asset))
 }
 
 func (controller *AssetController) CreateAssetValue(context *gin.Context) {
@@ -108,12 +136,12 @@ func (controller *AssetController) CreateAssetValue(context *gin.Context) {
 		return
 	}
 	assetValue.AssetName = context.Param("assetName")
-	assetValue, err := models.CreateAssetValue(controller.DB, assetValue)
+	err := models.CreateAssetValue(controller.DB, assetValue)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	context.JSON(http.StatusOK, models.AssetValueToAssetValueResponse(assetValue))
+	context.JSON(http.StatusOK, AssetValueToAssetValueResponse(assetValue))
 }
 
 func (controller *AssetController) ListAllAssetValues(context *gin.Context) {
@@ -123,9 +151,9 @@ func (controller *AssetController) ListAllAssetValues(context *gin.Context) {
 		return
 	}
 
-	responses := []models.AssetValueResponse{}
+	responses := []AssetValueResponse{}
 	for _, assetValue := range assetValues {
-		responses = append(responses, models.AssetValueToAssetValueResponse(assetValue))
+		responses = append(responses, AssetValueToAssetValueResponse(assetValue))
 	}
 	context.JSON(http.StatusOK, responses)
 }
@@ -136,9 +164,9 @@ func (controller *AssetController) GetAssetValues(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	responses := []models.AssetValueResponse{}
+	responses := []AssetValueResponse{}
 	for _, assetValue := range assetValues {
-		responses = append(responses, models.AssetValueToAssetValueResponse(assetValue))
+		responses = append(responses, AssetValueToAssetValueResponse(assetValue))
 	}
 	context.JSON(http.StatusOK, responses)
 }

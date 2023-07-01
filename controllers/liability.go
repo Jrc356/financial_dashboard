@@ -39,6 +39,30 @@ func NewLiabilityController(db *gorm.DB, router *gin.Engine) {
 	}
 }
 
+type LiabilityResponse struct {
+	Name string
+}
+
+func LiabilityToLiabilityResponse(liability models.Liability) LiabilityResponse {
+	return LiabilityResponse{
+		Name: liability.Name,
+	}
+}
+
+type LiabilityValueResponse struct {
+	LiabilityName string
+	Value         float64
+	Date          string
+}
+
+func LiabilityValueToLiabilityValueResponse(av models.LiabilityValue) LiabilityValueResponse {
+	return LiabilityValueResponse{
+		LiabilityName: av.LiabilityName,
+		Value:         av.Value,
+		Date:          av.CreatedAt.Format("01-02-2006"),
+	}
+}
+
 func (controller *LiabilityController) CreateLiability(context *gin.Context) {
 	var liability models.Liability
 	if err := context.BindJSON(&liability); err != nil {
