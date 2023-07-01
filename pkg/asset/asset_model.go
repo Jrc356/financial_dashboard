@@ -26,9 +26,3 @@ type Asset struct {
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
-
-type AssetValue struct {
-	gorm.Model
-	AssetName string  `json:"assetName"`
-	Value     float32 `json:"value"`
-}
