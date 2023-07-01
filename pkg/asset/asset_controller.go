@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Jrc356/financial_dashboard/pkg/tax"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -123,5 +124,16 @@ func ValidateAsset(a Asset) error {
 	default:
 		return fmt.Errorf("unknown or invalid asset type: %s", a.Type)
 	}
+
+	if a.TaxBucket != "" {
+		switch a.TaxBucket {
+		case tax.TaxDeferred:
+		case tax.Taxable:
+		case tax.Roth:
+		default:
+			return fmt.Errorf("unknown or invalid asset taxBucket: %s", a.TaxBucket)
+		}
+	}
+
 	return nil
 }
