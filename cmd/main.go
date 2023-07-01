@@ -49,16 +49,18 @@ func createAssetControllers(router *gin.Engine) {
 	{
 		assetsRouter.POST("", assetsController.CreateAsset)
 		assetsRouter.GET("", assetsController.ListAssets)
-		assetsRouter.GET("/:id", assetsController.GetAsset)
-		assetsRouter.PUT("/:id", assetsController.UpdateAsset)
-		assetsRouter.DELETE("/:id", assetsController.DeleteAsset)
+		assetsRouter.GET("/values", assetsController.ListAllAssetValues)
 	}
 
-	assetValueRouter := assetsRouter.Group("/value")
+	assetRouter := assetsRouter.Group("/:assetName")
 	{
-		assetValueRouter.GET("", assetsController.ListAllAssetValues)
-		assetValueRouter.GET("/:asset", assetsController.GetAssetValues)
-		assetValueRouter.POST("/:asset", assetsController.CreateAssetValue)
+		assetRouter.GET("", assetsController.GetAsset)
+		assetRouter.PUT("", assetsController.UpdateAsset)
+
+		assetRouter.GET("/value", assetsController.GetAssetValues)
+		assetRouter.POST("/value", assetsController.CreateAssetValue)
+
+		assetRouter.DELETE("", assetsController.DeleteAsset)
 	}
 }
 
@@ -69,9 +71,9 @@ func createLiabilityControllers(router *gin.Engine) {
 	{
 		liabilitiesRouter.POST("", liabilitiesController.CreateLiability)
 		liabilitiesRouter.GET("", liabilitiesController.ListLiabilities)
-		liabilitiesRouter.GET("/:id", liabilitiesController.GetLiability)
-		liabilitiesRouter.PUT("/:id", liabilitiesController.UpdateLiability)
-		liabilitiesRouter.DELETE("/:id", liabilitiesController.DeleteLiability)
+		liabilitiesRouter.GET("/:liabilityName", liabilitiesController.GetLiability)
+		liabilitiesRouter.PUT("/:liabilityName", liabilitiesController.UpdateLiability)
+		liabilitiesRouter.DELETE("/:liabilityName", liabilitiesController.DeleteLiability)
 	}
 
 	liabilityValueRouter := liabilitiesRouter.Group("/value")
