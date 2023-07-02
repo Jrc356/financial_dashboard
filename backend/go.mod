@@ -1,4 +1,4 @@
-module github.com/Jrc356/financial_dashboard
+module github.com/Jrc356/financial_dashboard/backend
 
 go 1.18
 

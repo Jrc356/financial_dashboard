@@ -3,7 +3,7 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/Jrc356/financial_dashboard/models"
+	"github.com/Jrc356/financial_dashboard/backend/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

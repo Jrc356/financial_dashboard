@@ -6,8 +6,8 @@ import (
 	"math"
 	"math/rand"
 
-	"github.com/Jrc356/financial_dashboard/controllers"
-	"github.com/Jrc356/financial_dashboard/models"
+	"github.com/Jrc356/financial_dashboard/backend/controllers"
+	"github.com/Jrc356/financial_dashboard/backend/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
