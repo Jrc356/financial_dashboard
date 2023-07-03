@@ -4,7 +4,7 @@ import (
 	"math"
 	"net/http"
 
-	"github.com/Jrc356/financial_dashboard/backend/models"
+	"github.com/Jrc356/financial_dashboard/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -13,7 +13,7 @@ type FinanceController struct {
 	DB *gorm.DB
 }
 
-func NewFinanceController(db *gorm.DB, router *gin.Engine) {
+func NewFinanceController(db *gorm.DB, router *gin.RouterGroup) {
 	financeController := FinanceController{DB: db}
 	router.GET("/networth", financeController.CalculateNetWorth)
 }

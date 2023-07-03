@@ -3,7 +3,7 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/Jrc356/financial_dashboard/backend/models"
+	"github.com/Jrc356/financial_dashboard/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -17,7 +17,7 @@ type AssetController struct {
 	DB *gorm.DB
 }
 
-func NewAssetController(db *gorm.DB, router *gin.Engine) AssetController {
+func NewAssetController(db *gorm.DB, router *gin.RouterGroup) AssetController {
 	assetController := AssetController{DB: db}
 
 	assetsRouter := router.Group(routerGroupAsset)

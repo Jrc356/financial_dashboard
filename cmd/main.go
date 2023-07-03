@@ -6,8 +6,9 @@ import (
 	"math"
 	"math/rand"
 
-	"github.com/Jrc356/financial_dashboard/backend/controllers"
-	"github.com/Jrc356/financial_dashboard/backend/models"
+	"github.com/Jrc356/financial_dashboard/controllers"
+	"github.com/Jrc356/financial_dashboard/models"
+	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -131,8 +132,10 @@ func init() {
 
 func main() {
 	router := gin.Default()
-	controllers.NewAssetController(db, router)
-	controllers.NewLiabilityController(db, router)
-	controllers.NewFinanceController(db, router)
+	router.Use(static.Serve("/", static.LocalFile("./frontend/build", true)))
+	apiRouter := router.Group("/api")
+	controllers.NewAssetController(db, apiRouter)
+	controllers.NewLiabilityController(db, apiRouter)
+	controllers.NewFinanceController(db, apiRouter)
 	router.Run()
 }

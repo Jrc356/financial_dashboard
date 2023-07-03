@@ -1,8 +1,9 @@
-module github.com/Jrc356/financial_dashboard/backend
+module github.com/Jrc356/financial_dashboard
 
 go 1.18
 
 require (
+	github.com/gin-gonic/contrib v0.0.0-20221130124618-7e01895a63f2
 	github.com/gin-gonic/gin v1.9.1
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/gorm v1.25.1
