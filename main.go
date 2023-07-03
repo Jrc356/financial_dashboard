@@ -132,7 +132,7 @@ func init() {
 
 func main() {
 	router := gin.Default()
-	router.Use(static.Serve("/", static.LocalFile("./frontend/build", true)))
+	router.Use(static.Serve("/", static.LocalFile("./client/build", true)))
 	apiRouter := router.Group("/api")
 	controllers.NewAssetController(db, apiRouter)
 	controllers.NewLiabilityController(db, apiRouter)
