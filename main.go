@@ -8,6 +8,7 @@ import (
 
 	"github.com/Jrc356/financial_dashboard/controllers"
 	"github.com/Jrc356/financial_dashboard/models"
+	"github.com/gin-gonic/contrib/cors"
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
@@ -55,7 +56,7 @@ func init() {
 		&models.LiabilityValue{},
 	)
 
-	// Test Data
+	// TODO: Remove this test data
 	assets := []models.Asset{
 		{
 			Name: "Our Savings Account",
@@ -96,13 +97,15 @@ func init() {
 			log.Panic(err)
 		}
 
-		value := models.AssetValue{
-			AssetName: asset.Name,
-			Value:     randomDollarAmount(),
-		}
+		for i := 0; i < 10; i++ {
+			value := models.AssetValue{
+				AssetName: asset.Name,
+				Value:     randomDollarAmount(),
+			}
 
-		if err := models.CreateAssetValue(db, value); err != nil {
-			log.Panic(err)
+			if err := models.CreateAssetValue(db, value); err != nil {
+				log.Panic(err)
+			}
 		}
 	}
 
@@ -120,12 +123,14 @@ func init() {
 			log.Panic(err)
 		}
 
-		value := models.LiabilityValue{
-			LiabilityName: liabilityName,
-			Value:         randomDollarAmount(),
-		}
-		if err := models.CreateLiabilityValue(db, value); err != nil {
-			log.Panic(err)
+		for i := 0; i < 10; i++ {
+			value := models.LiabilityValue{
+				LiabilityName: liabilityName,
+				Value:         randomDollarAmount(),
+			}
+			if err := models.CreateLiabilityValue(db, value); err != nil {
+				log.Panic(err)
+			}
 		}
 	}
 }
@@ -133,6 +138,7 @@ func init() {
 func main() {
 	router := gin.Default()
 	router.Use(static.Serve("/", static.LocalFile("./client/build", true)))
+	router.Use(cors.Default())
 	apiRouter := router.Group("/api")
 	controllers.NewAssetController(db, apiRouter)
 	controllers.NewLiabilityController(db, apiRouter)

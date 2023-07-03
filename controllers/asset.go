@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/Jrc356/financial_dashboard/models"
 	"github.com/gin-gonic/gin"
@@ -54,16 +55,14 @@ func assetToAssetResponse(asset models.Asset) assetResponse {
 }
 
 type assetValueResponse struct {
-	AssetName string
-	Value     float64
-	Date      string
+	Value float64
+	Date  time.Time
 }
 
 func assetValueToAssetValueResponse(av models.AssetValue) assetValueResponse {
 	return assetValueResponse{
-		AssetName: av.AssetName,
-		Value:     av.Value,
-		Date:      av.CreatedAt.Format("01-02-2006"),
+		Value: av.Value,
+		Date:  av.CreatedAt,
 	}
 }
 
@@ -102,7 +101,7 @@ func (controller *AssetController) GetAsset(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	context.JSON(http.StatusOK, asset)
+	context.JSON(http.StatusOK, assetToAssetResponse(asset))
 }
 
 func (controller *AssetController) UpdateAsset(context *gin.Context) {
