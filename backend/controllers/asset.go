@@ -9,57 +9,58 @@ import (
 )
 
 const (
-	AssetNameParam = "assetName"
+	paramAssetName   = "assetName"
+	routerGroupAsset = "/asset"
 )
 
 type AssetController struct {
 	DB *gorm.DB
 }
 
-func NewAssetController(db *gorm.DB, router *gin.Engine) {
-	assetsController := AssetController{DB: db}
+func NewAssetController(db *gorm.DB, router *gin.Engine) AssetController {
+	assetController := AssetController{DB: db}
 
-	assetsRouter := router.Group("/asset")
+	assetsRouter := router.Group(routerGroupAsset)
 	{
-		assetsRouter.POST("", assetsController.CreateAsset)
-		assetsRouter.GET("", assetsController.ListAssets)
-		assetsRouter.GET("/values", assetsController.ListAllAssetValues)
+		assetsRouter.POST("", assetController.CreateAsset)
+		assetsRouter.GET("", assetController.ListAssets)
+		assetsRouter.GET("/values", assetController.ListAssetValues)
 	}
 
-	assetRouter := assetsRouter.Group("/:" + AssetNameParam)
+	assetRouter := assetsRouter.Group("/:" + paramAssetName)
 	{
-		assetRouter.GET("", assetsController.GetAsset)
-		assetRouter.PUT("", assetsController.UpdateAsset)
-		assetRouter.DELETE("", assetsController.DeleteAsset)
+		assetRouter.GET("", assetController.GetAsset)
+		assetRouter.PUT("", assetController.UpdateAsset)
+		assetRouter.DELETE("", assetController.DeleteAsset)
 
-		assetRouter.GET("/value", assetsController.GetAssetValues)
-		assetRouter.POST("/value", assetsController.CreateAssetValue)
-
+		assetRouter.GET("/value", assetController.GetAssetValues)
+		assetRouter.POST("/value", assetController.CreateAssetValue)
 	}
+	return assetController
 }
 
-type AssetResponse struct {
+type assetResponse struct {
 	Name      string
 	Type      models.AssetType
 	TaxBucket models.TaxBucket
 }
 
-func AssetToAssetResponse(asset models.Asset) AssetResponse {
-	return AssetResponse{
+func assetToAssetResponse(asset models.Asset) assetResponse {
+	return assetResponse{
 		Name:      asset.Name,
 		Type:      asset.Type,
 		TaxBucket: asset.TaxBucket,
 	}
 }
 
-type AssetValueResponse struct {
+type assetValueResponse struct {
 	AssetName string
 	Value     float64
 	Date      string
 }
 
-func AssetValueToAssetValueResponse(av models.AssetValue) AssetValueResponse {
-	return AssetValueResponse{
+func assetValueToAssetValueResponse(av models.AssetValue) assetValueResponse {
+	return assetValueResponse{
 		AssetName: av.AssetName,
 		Value:     av.Value,
 		Date:      av.CreatedAt.Format("01-02-2006"),
@@ -78,7 +79,7 @@ func (controller *AssetController) CreateAsset(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	context.JSON(http.StatusOK, AssetToAssetResponse(asset))
+	context.JSON(http.StatusOK, assetToAssetResponse(asset))
 }
 
 func (controller *AssetController) ListAssets(context *gin.Context) {
@@ -88,15 +89,15 @@ func (controller *AssetController) ListAssets(context *gin.Context) {
 		return
 	}
 
-	responses := []AssetResponse{}
+	responses := []assetResponse{}
 	for _, asset := range assets {
-		responses = append(responses, AssetToAssetResponse(asset))
+		responses = append(responses, assetToAssetResponse(asset))
 	}
 	context.JSON(http.StatusOK, responses)
 }
 
 func (controller *AssetController) GetAsset(context *gin.Context) {
-	asset, err := models.GetAsset(controller.DB, context.Param(AssetNameParam))
+	asset, err := models.GetAsset(controller.DB, context.Param(paramAssetName))
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -111,22 +112,22 @@ func (controller *AssetController) UpdateAsset(context *gin.Context) {
 		return
 	}
 
-	asset, err := models.UpdateAsset(controller.DB, context.Param(AssetNameParam), updatedAsset)
+	asset, err := models.UpdateAsset(controller.DB, context.Param(paramAssetName), updatedAsset)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	context.JSON(http.StatusOK, AssetToAssetResponse(asset))
+	context.JSON(http.StatusOK, assetToAssetResponse(asset))
 }
 
 func (controller *AssetController) DeleteAsset(context *gin.Context) {
-	asset, err := models.DeleteAsset(controller.DB, context.Param(AssetNameParam))
+	asset, err := models.DeleteAsset(controller.DB, context.Param(paramAssetName))
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	context.JSON(http.StatusOK, AssetToAssetResponse(asset))
+	context.JSON(http.StatusOK, assetToAssetResponse(asset))
 }
 
 func (controller *AssetController) CreateAssetValue(context *gin.Context) {
@@ -141,32 +142,41 @@ func (controller *AssetController) CreateAssetValue(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	context.JSON(http.StatusOK, AssetValueToAssetValueResponse(assetValue))
+	context.JSON(http.StatusOK, assetValueToAssetValueResponse(assetValue))
 }
 
-func (controller *AssetController) ListAllAssetValues(context *gin.Context) {
+func (controller *AssetController) ListAssetValues(context *gin.Context) {
 	assetValues, err := models.GetAllAssetValues(controller.DB)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	responses := []AssetValueResponse{}
+	response := []assetValueResponse{}
 	for _, assetValue := range assetValues {
-		responses = append(responses, AssetValueToAssetValueResponse(assetValue))
+		response = append(response, assetValueToAssetValueResponse(assetValue))
 	}
-	context.JSON(http.StatusOK, responses)
+	context.JSON(http.StatusOK, response)
 }
 
 func (controller *AssetController) GetAssetValues(context *gin.Context) {
-	assetValues, err := models.GetAssetValues(controller.DB, context.Param(AssetNameParam))
+	assetValues, err := models.GetAssetValues(controller.DB, context.Param(paramAssetName))
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	responses := []AssetValueResponse{}
+	response := []assetValueResponse{}
 	for _, assetValue := range assetValues {
-		responses = append(responses, AssetValueToAssetValueResponse(assetValue))
+		response = append(response, assetValueToAssetValueResponse(assetValue))
 	}
-	context.JSON(http.StatusOK, responses)
+	context.JSON(http.StatusOK, response)
+}
+
+func (controller *AssetController) GetCurrentAssetValue(context *gin.Context) {
+	assetValue, err := models.GetLastAssetValue(controller.DB, context.Param(paramAssetName))
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	context.JSON(http.StatusOK, assetValueToAssetValueResponse(assetValue))
 }

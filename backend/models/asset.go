@@ -113,31 +113,14 @@ func GetAllAssetValues(db *gorm.DB) ([]AssetValue, error) {
 	return assetValues, result.Error
 }
 
-func CalculateTotalAssetValue(db *gorm.DB) (float64, error) {
-	assets, err := GetAllAssets(db)
-	if err != nil {
-		return 0, err
-	}
-
-	var totalAssets float64
-	for _, asset := range assets {
-		assetValue, err := GetLastAssetValue(db, asset.Name)
-		if err != nil {
-			return 0, err
-		}
-		totalAssets += assetValue
-	}
-	return totalAssets, nil
-}
-
 func GetAssetValues(db *gorm.DB, assetName string) ([]AssetValue, error) {
 	var assetValues []AssetValue
 	result := db.Order("created_at desc").Where("asset_name = ?", assetName).Find(&assetValues)
 	return assetValues, result.Error
 }
 
-func GetLastAssetValue(db *gorm.DB, assetName string) (float64, error) {
+func GetLastAssetValue(db *gorm.DB, assetName string) (AssetValue, error) {
 	var assetValue AssetValue
 	result := db.Order("created_at desc").Where("asset_name = ?", assetName).Find(&assetValue).Limit(1)
-	return assetValue.Value, result.Error
+	return assetValue, result.Error
 }

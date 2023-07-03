@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/Jrc356/financial_dashboard/backend/models"
@@ -11,7 +10,8 @@ import (
 )
 
 const (
-	LiabilityNameParam = "liabilityName"
+	paramLiabilityName   = "liabilityName"
+	routerGroupLiability = "/liability"
 )
 
 type LiabilityController struct {
@@ -21,14 +21,14 @@ type LiabilityController struct {
 func NewLiabilityController(db *gorm.DB, router *gin.Engine) {
 	liabilitiesController := LiabilityController{DB: db}
 
-	liabilitiesRouter := router.Group("/liability")
+	liabilitiesRouter := router.Group(routerGroupLiability)
 	{
 		liabilitiesRouter.POST("", liabilitiesController.CreateLiability)
 		liabilitiesRouter.GET("", liabilitiesController.ListLiabilities)
 		liabilitiesRouter.GET("/values", liabilitiesController.ListAllLiabilityValues)
 	}
 
-	liabilityRouter := liabilitiesRouter.Group("/:" + LiabilityNameParam)
+	liabilityRouter := liabilitiesRouter.Group("/:" + paramLiabilityName)
 	{
 		liabilityRouter.GET("", liabilitiesController.GetLiability)
 		liabilityRouter.PUT("", liabilitiesController.UpdateLiability)
@@ -39,24 +39,24 @@ func NewLiabilityController(db *gorm.DB, router *gin.Engine) {
 	}
 }
 
-type LiabilityResponse struct {
+type liabilityResponse struct {
 	Name string
 }
 
-func LiabilityToLiabilityResponse(liability models.Liability) LiabilityResponse {
-	return LiabilityResponse{
+func liabilityToLiabilityResponse(liability models.Liability) liabilityResponse {
+	return liabilityResponse{
 		Name: liability.Name,
 	}
 }
 
-type LiabilityValueResponse struct {
+type liabilityValueResponse struct {
 	LiabilityName string
 	Value         float64
 	Date          string
 }
 
-func LiabilityValueToLiabilityValueResponse(av models.LiabilityValue) LiabilityValueResponse {
-	return LiabilityValueResponse{
+func liabilityValueToLiabilityValueResponse(av models.LiabilityValue) liabilityValueResponse {
+	return liabilityValueResponse{
 		LiabilityName: av.LiabilityName,
 		Value:         av.Value,
 		Date:          av.CreatedAt.Format("01-02-2006"),
@@ -75,33 +75,34 @@ func (controller *LiabilityController) CreateLiability(context *gin.Context) {
 		return
 	}
 
-	result := controller.DB.Create(&liability)
-	if result.Error != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+	err := models.CreateLiability(controller.DB, liability)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	context.JSON(http.StatusOK, liability)
+	context.JSON(http.StatusOK, liabilityToLiabilityResponse(liability))
 }
 
 func (controller *LiabilityController) ListLiabilities(context *gin.Context) {
-	var liabilities []models.Liability
-	result := controller.DB.Find(&liabilities)
-	if result.Error != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+	liabilities, err := models.GetAllLiabilities(controller.DB)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	context.JSON(http.StatusOK, liabilities)
+	response := []liabilityResponse{}
+	for _, liability := range liabilities {
+		response = append(response, liabilityToLiabilityResponse(liability))
+	}
+	context.JSON(http.StatusOK, response)
 }
 
 func (controller *LiabilityController) GetLiability(context *gin.Context) {
-	var liability models.Liability
-	result := controller.DB.First(&liability, context.Param("id"))
-	if result.Error != nil {
-		log.Println(result.Error)
-		context.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+	liability, err := models.GetLiability(controller.DB, context.Param(paramLiabilityName))
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	context.JSON(http.StatusOK, liability)
+	context.JSON(http.StatusOK, liabilityToLiabilityResponse(liability))
 }
 
 func (controller *LiabilityController) UpdateLiability(context *gin.Context) {
@@ -116,41 +117,22 @@ func (controller *LiabilityController) UpdateLiability(context *gin.Context) {
 		return
 	}
 
-	var liability models.Liability
-	result := controller.DB.First(&liability, context.Param("id"))
-	if result.Error != nil {
-		log.Println(result.Error)
-		context.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+	liability, err := models.UpdateLiability(controller.DB, context.Param(paramLiabilityName), updatedLiability)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	result = controller.DB.Model(&liability).Updates(&updatedLiability)
-	if result.Error != nil {
-		log.Println(result.Error)
-		context.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
-		return
-	}
-
-	context.JSON(http.StatusOK, liability)
+	context.JSON(http.StatusOK, liabilityToLiabilityResponse(liability))
 }
 
 func (controller *LiabilityController) DeleteLiability(context *gin.Context) {
-	var liability models.Liability
-	result := controller.DB.First(&liability, context.Param("id"))
-	if result.Error != nil {
-		log.Println(result.Error)
-		context.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+	liability, err := models.DeleteLiability(controller.DB, context.Param(paramLiabilityName))
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
-	result = controller.DB.Delete(&liability)
-	if result.Error != nil {
-		log.Println(result.Error)
-		context.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
-		return
-	}
-
-	context.JSON(http.StatusOK, liability)
+	context.JSON(http.StatusOK, liabilityToLiabilityResponse(liability))
 }
 
 func (controller *LiabilityController) CreateLiabilityValue(context *gin.Context) {
@@ -160,33 +142,38 @@ func (controller *LiabilityController) CreateLiabilityValue(context *gin.Context
 		return
 	}
 	liabilityValue.LiabilityName = context.Param("liability")
-	result := controller.DB.Create(&liabilityValue)
-	if result.Error != nil {
-		// TODO: better handling
-		context.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+	err := models.CreateLiabilityValue(controller.DB, liabilityValue)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	context.JSON(http.StatusOK, liabilityValue)
+	context.JSON(http.StatusOK, liabilityValueToLiabilityValueResponse(liabilityValue))
 }
 
 func (controller *LiabilityController) ListAllLiabilityValues(context *gin.Context) {
-	var liabilityValues []models.LiabilityValue
-	result := controller.DB.Find(&liabilityValues)
-	if result.Error != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+	liabilityValues, err := models.GetAllLiabilityValues(controller.DB)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	context.JSON(http.StatusOK, liabilityValues)
+	response := []liabilityValueResponse{}
+	for _, liabilityValue := range liabilityValues {
+		response = append(response, liabilityValueToLiabilityValueResponse(liabilityValue))
+	}
+	context.JSON(http.StatusOK, response)
 }
 
 func (controller *LiabilityController) GetLiabilityValues(context *gin.Context) {
-	var liabilityValues []models.LiabilityValue
-	result := controller.DB.Where("liability_name = ?", context.Param("liability")).Find(&liabilityValues)
-	if result.Error != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+	liabilityValues, err := models.GetLiabilityValues(controller.DB, context.Param(paramLiabilityName))
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	context.JSON(http.StatusOK, liabilityValues)
+	response := []liabilityValueResponse{}
+	for _, liabilityValue := range liabilityValues {
+		response = append(response, liabilityValueToLiabilityValueResponse(liabilityValue))
+	}
+	context.JSON(http.StatusOK, response)
 }
 
 func ValidateLiability(l models.Liability) error {

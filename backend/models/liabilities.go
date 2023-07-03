@@ -72,23 +72,6 @@ func GetAllLiabilityValues(db *gorm.DB) ([]LiabilityValue, error) {
 	return liabilityValues, result.Error
 }
 
-func CalculateTotalLiabilityValue(db *gorm.DB) (float64, error) {
-	liabilities, err := GetAllLiabilities(db)
-	if err != nil {
-		return 0, err
-	}
-
-	var totalLiabilities float64
-	for _, liability := range liabilities {
-		liabilityValue, err := GetLastLiabilityValue(db, liability.Name)
-		if err != nil {
-			return 0, err
-		}
-		totalLiabilities += liabilityValue
-	}
-	return totalLiabilities, nil
-}
-
 func GetLiabilityValues(db *gorm.DB, liabilityName string) ([]LiabilityValue, error) {
 	var liabilityValues []LiabilityValue
 	result := db.Order("created_at desc").Where("liability_name = ?", liabilityName).Find(&liabilityValues)
