@@ -1,4 +1,4 @@
-import React, { type ReactNode } from 'react'
+import axios from 'axios'
 import {
   Table,
   TableBody,
@@ -8,29 +8,29 @@ import {
   TableRow,
   Paper
 } from '@mui/material'
-import axios from 'axios'
+import React from 'react'
 
-interface Asset {
+export interface Asset {
   Name: string
   Type: string
   TaxBucket: string
 }
 
-export default class AssetsTable extends React.Component {
-  state = {
-    assets: [] as Asset[]
-  }
+export default function AssetsTable (): JSX.Element {
+  const [assets, setAssets] = React.useState([] as Asset[])
 
-  componentDidMount (): void {
+  React.useEffect(() => {
     axios.get('http://localhost:8080/api/asset')
-      .then(res => {
-        const assets: Asset = res.data
-        this.setState({ assets })
-      }).catch(console.error)
-  }
+      .then((response) => {
+        setAssets(response.data)
+      })
+      .catch(console.error)
+  }, [])
 
-  render (): ReactNode {
-    return (
+  if (assets.length === 0) return <div></div>
+
+  return (
+    <div>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
@@ -41,7 +41,7 @@ export default class AssetsTable extends React.Component {
             </TableRow>
           </TableHead>
           <TableBody>
-            {this.state.assets.map((asset) => (
+            {assets.map((asset) => (
               <TableRow
                 key={asset.Name}
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -54,6 +54,6 @@ export default class AssetsTable extends React.Component {
           </TableBody>
         </Table>
       </TableContainer>
-    )
-  }
+    </div>
+  )
 }
