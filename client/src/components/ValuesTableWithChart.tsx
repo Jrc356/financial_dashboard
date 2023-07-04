@@ -95,7 +95,7 @@ function TabPanel (props: TabPanelProps): React.ReactElement {
   )
 }
 
-export default function ValuesTable ({ accountType }: Props): JSX.Element {
+export default function ValuesTableWithChart ({ accountType }: Props): JSX.Element {
   const [tabValue, setTabValue] = React.useState(0)
   const [accounts, setAccounts] = React.useState([] as Account[])
 
@@ -170,7 +170,7 @@ export default function ValuesTable ({ accountType }: Props): JSX.Element {
         <TabPanel key={account.Name} value={tabValue} index={i}>
           <Line options={chartOptions} data={data} />
           <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} aria-label="accounts table">
+            <Table aria-label="accounts table">
               <TableHead>
                 <TableRow>
                   <TableCell><b>Date</b></TableCell>

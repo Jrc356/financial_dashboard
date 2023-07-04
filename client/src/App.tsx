@@ -7,7 +7,7 @@ import {
 } from '@mui/material'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
-import ValuesTable from './components/ValuesTable'
+import ValuesTable from './components/ValuesTableWithChart'
 
 const darkTheme = createTheme({
   palette: {
