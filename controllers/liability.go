@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/Jrc356/financial_dashboard/models"
 	"github.com/gin-gonic/gin"
@@ -52,14 +53,14 @@ func liabilityToLiabilityResponse(liability models.Liability) liabilityResponse 
 type liabilityValueResponse struct {
 	LiabilityName string
 	Value         float64
-	Date          string
+	Date          time.Time
 }
 
 func liabilityValueToLiabilityValueResponse(av models.LiabilityValue) liabilityValueResponse {
 	return liabilityValueResponse{
 		LiabilityName: av.LiabilityName,
 		Value:         av.Value,
-		Date:          av.CreatedAt.Format("01-02-2006"),
+		Date:          av.CreatedAt,
 	}
 }
 

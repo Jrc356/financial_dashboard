@@ -1,13 +1,13 @@
 import React from 'react'
 import './App.css'
-// import AssetsTable from './components/AssetsTable'
-// import LiabilitiesTable from './components/LiabilitiesTable'
+import AssetsTable from './components/AssetsTable'
+import LiabilitiesTable from './components/LiabilitiesTable'
 import {
   Grid
 } from '@mui/material'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
-import ValuesTable from './components/ValuesTableWithChart'
+import ValuesTableWithChart from './components/ValuesTableWithChart'
 
 const darkTheme = createTheme({
   palette: {
@@ -23,20 +23,20 @@ export default class App extends React.Component {
 
         <Grid container justifyContent="center" alignItems="center" direction={'column'}>
           <Grid item xs={6} marginTop={3}>
-            <ValuesTable accountType="asset"></ValuesTable>
+            <ValuesTableWithChart accountType="asset"></ValuesTableWithChart>
           </Grid>
 
-          {/* <Grid item xs={6} marginTop={3}>
+          <Grid item xs={6} marginTop={3}>
+            <ValuesTableWithChart accountType="liability"></ValuesTableWithChart>
+          </Grid>
+
+          <Grid item xs={6} marginTop={3}>
             <AssetsTable></AssetsTable>
           </Grid>
 
           <Grid item xs={6} marginTop={3}>
             <LiabilitiesTable></LiabilitiesTable>
-          </Grid> */}
-
-          {/* <Grid item xs={6} marginTop={3}>
-            <ValuesTable accountType="liability"></ValuesTable>
-          </Grid> */}
+          </Grid>
         </Grid>
       </ThemeProvider>
     )

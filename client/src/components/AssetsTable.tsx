@@ -1,4 +1,3 @@
-import axios from 'axios'
 import {
   Table,
   TableBody,
@@ -9,25 +8,20 @@ import {
   Paper
 } from '@mui/material'
 import React from 'react'
-
-export interface Asset {
-  Name: string
-  Type: string
-  TaxBucket: string
-}
+import { type Asset, GetAllAssets } from '../lib/api'
 
 export default function AssetsTable (): JSX.Element {
   const [assets, setAssets] = React.useState([] as Asset[])
 
   React.useEffect(() => {
-    axios.get('http://localhost:8080/api/asset')
-      .then((response) => {
-        setAssets(response.data)
+    GetAllAssets()
+      .then((a) => {
+        setAssets(a)
       })
       .catch(console.error)
   }, [])
 
-  if (assets.length === 0) return <div></div>
+  if (assets.length === 0) return <div><TableContainer component={Paper}></TableContainer></div>
 
   return (
     <div>

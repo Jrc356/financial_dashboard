@@ -1,4 +1,3 @@
-import axios from 'axios'
 import {
   Table,
   TableBody,
@@ -9,18 +8,15 @@ import {
   Paper
 } from '@mui/material'
 import React from 'react'
-
-interface Liability {
-  Name: string
-}
+import { GetAllLiabilities, type Liability } from '../lib/api'
 
 export default function LiabilitiesTable (): JSX.Element {
   const [liabilities, setLiabilities] = React.useState([] as Liability[])
 
   React.useEffect(() => {
-    axios.get('http://localhost:8080/api/liability')
-      .then((response) => {
-        setLiabilities(response.data)
+    GetAllLiabilities()
+      .then((l) => {
+        setLiabilities(l)
       })
       .catch(console.error)
   }, [])

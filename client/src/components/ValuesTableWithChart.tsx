@@ -1,4 +1,3 @@
-import axios from 'axios'
 import {
   Table,
   TableBody,
@@ -9,8 +8,7 @@ import {
   Paper,
   Box,
   Tabs,
-  Tab,
-  Typography
+  Tab
 } from '@mui/material'
 import React from 'react'
 import {
@@ -25,6 +23,7 @@ import {
   Legend
 } from 'chart.js'
 import { Line } from 'react-chartjs-2'
+import { API, type Account, GetAll, GetValuesForAccount } from '../lib/api'
 
 ChartJS.register(
   CategoryScale,
@@ -48,16 +47,6 @@ export const chartOptions = {
       text: 'Value over Time'
     }
   }
-}
-
-interface Account {
-  Name: string
-  Values: AccountValue[]
-}
-
-interface AccountValue {
-  Value: number
-  Date: string
 }
 
 interface Props {
@@ -88,7 +77,7 @@ function TabPanel (props: TabPanelProps): React.ReactElement {
     >
       {value === index && (
         <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
+          {children}
         </Box>
       )}
     </div>
@@ -99,13 +88,22 @@ export default function ValuesTableWithChart ({ accountType }: Props): JSX.Eleme
   const [tabValue, setTabValue] = React.useState(0)
   const [accounts, setAccounts] = React.useState([] as Account[])
 
+  let api = API.Asset
+  switch (accountType) {
+    case API.Asset:
+      api = API.Asset
+      break
+    case API.Liability:
+      api = API.Liability
+      break
+    default:
+      console.error('unknown account type')
+      break
+  }
+
   React.useEffect(() => {
-    axios.get(`http://localhost:8080/api/${accountType}`)
-      .then((response) => {
-        const accs = response.data as Account[]
-        for (const a of accs) {
-          a.Values = []
-        }
+    GetAll(api)
+      .then((accs) => {
         setAccounts(accs)
       })
       .catch(console.error)
@@ -114,17 +112,17 @@ export default function ValuesTableWithChart ({ accountType }: Props): JSX.Eleme
   React.useEffect(() => {
     if (accounts.length === 0) { return }
     if (accounts[tabValue].Values.length === 0) {
-      axios.get(`http://localhost:8080/api/${accountType}/${accounts[tabValue].Name}/value`)
-        .then((response) => {
+      GetValuesForAccount(api, accounts[tabValue])
+        .then((acc) => {
           const a = accounts.slice()
-          a[tabValue].Values = response.data
+          a[tabValue] = acc
           setAccounts(a)
         })
         .catch(console.error)
     }
   }, [accounts, tabValue])
 
-  if (accounts.length === 0) return <div><p>hi</p></div>
+  if (accounts.length === 0) return <div></div>
 
   const data = {
     labels: [] as string[],
@@ -137,18 +135,19 @@ export default function ValuesTableWithChart ({ accountType }: Props): JSX.Eleme
     }]
   }
 
-  console.log(accounts)
   for (const value of accounts[tabValue].Values) {
+    // TODO: drop time from date
+    // TODO: depends on having unique days
     data.labels.push(new Date(value.Date).toLocaleString())
     data.datasets[0].data.unshift(value.Value)
   }
 
   const handleChange = (event: React.SyntheticEvent, tabValue: number): void => {
     if (accounts[tabValue].Values.length === 0) {
-      axios.get(`http://localhost:8080/api/${accountType}/${accounts[tabValue].Name}/value`)
-        .then((response) => {
+      GetValuesForAccount(api, accounts[tabValue])
+        .then((acc) => {
           const a = accounts.slice()
-          a[tabValue].Values = response.data
+          a[tabValue] = acc
           setAccounts(a)
         })
         .catch(console.error)
