@@ -1,13 +1,13 @@
 import React from 'react'
 import './App.css'
-import AssetsTable from './components/AssetsTable'
-import LiabilitiesTable from './components/LiabilitiesTable'
+import AssetsTable from './components/desktop/AssetsTable'
+import LiabilitiesTable from './components/desktop/LiabilitiesTable'
 import {
   Grid
 } from '@mui/material'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
-import ValuesTableWithChart from './components/ValuesTableWithChart'
+import ValuesTableWithChart from './components/desktop/ValuesTableWithChart'
 
 const darkTheme = createTheme({
   palette: {

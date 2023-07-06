@@ -8,7 +8,7 @@ import {
   Paper
 } from '@mui/material'
 import React from 'react'
-import { GetAllLiabilities, type Liability } from '../lib/api'
+import { GetAllLiabilities, type Liability } from '../../lib/api'
 
 export default function LiabilitiesTable (): JSX.Element {
   const [liabilities, setLiabilities] = React.useState([] as Liability[])

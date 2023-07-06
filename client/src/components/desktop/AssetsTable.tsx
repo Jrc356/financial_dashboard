@@ -8,7 +8,7 @@ import {
   Paper
 } from '@mui/material'
 import React from 'react'
-import { type Asset, GetAllAssets } from '../lib/api'
+import { type Asset, GetAllAssets } from '../../lib/api'
 
 export default function AssetsTable (): JSX.Element {
   const [assets, setAssets] = React.useState([] as Asset[])
