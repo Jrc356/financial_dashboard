@@ -1,14 +1,14 @@
 import {
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
-  Paper
+  TableRow
 } from '@mui/material'
 import React from 'react'
-import { type Asset, GetAllAssets } from '../../lib/api'
+import { GetAllAssets, type Asset } from '../../lib/api'
 
 export default function AssetsTable (): JSX.Element {
   const [assets, setAssets] = React.useState([] as Asset[])

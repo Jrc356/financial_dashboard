@@ -1,29 +1,29 @@
 import {
+  Box,
+  Paper,
+  Tab,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  Box,
-  Tabs,
-  Tab
+  Tabs
 } from '@mui/material'
-import React from 'react'
 import {
-  Chart as ChartJS,
   CategoryScale,
+  Chart as ChartJS,
+  Filler,
+  Legend,
+  LineElement,
   LinearScale,
   PointElement,
-  LineElement,
   Title,
-  Tooltip,
-  Filler,
-  Legend
+  Tooltip
 } from 'chart.js'
+import React from 'react'
 import { Line } from 'react-chartjs-2'
-import { API, type Account, GetAll, GetValuesForAccount } from '../../lib/api'
+import { API, GetAll, GetValuesForAccount, type Account } from '../../lib/api'
 
 ChartJS.register(
   CategoryScale,

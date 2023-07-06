@@ -1,11 +1,11 @@
 import {
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
-  Paper
+  TableRow
 } from '@mui/material'
 import React from 'react'
 import { GetAllLiabilities, type Liability } from '../../lib/api'
