@@ -16,5 +16,6 @@
         "react"
     ],
     "rules": {
+        "comma-dangle": ["error", "only-multiline"]
     }
 }

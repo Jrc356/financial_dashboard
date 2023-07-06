@@ -1,13 +1,10 @@
-import {
-  Grid
-} from '@mui/material'
 import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import React from 'react'
-import './App.css'
-import AssetsTable from './components/desktop/AssetsTable'
-import LiabilitiesTable from './components/desktop/LiabilitiesTable'
-import ValuesTableWithChart from './components/desktop/ValuesTableWithChart'
+import { blue } from '@mui/material/colors'
+import AccountView from './components/mobile/AccountView'
+import { API } from './lib/api'
+import { Box } from '@mui/material'
 
 const darkTheme = createTheme({
   palette: {
@@ -18,27 +15,15 @@ const darkTheme = createTheme({
 export default class App extends React.Component {
   render (): React.ReactNode {
     return (
-      <ThemeProvider theme={darkTheme}>
-        <CssBaseline />
-
-        <Grid container justifyContent="center" alignItems="center" direction={'column'}>
-          <Grid item xs={6} marginTop={3}>
-            <ValuesTableWithChart accountType="asset"></ValuesTableWithChart>
-          </Grid>
-
-          <Grid item xs={6} marginTop={3}>
-            <ValuesTableWithChart accountType="liability"></ValuesTableWithChart>
-          </Grid>
-
-          <Grid item xs={6} marginTop={3}>
-            <AssetsTable></AssetsTable>
-          </Grid>
-
-          <Grid item xs={6} marginTop={3}>
-            <LiabilitiesTable></LiabilitiesTable>
-          </Grid>
-        </Grid>
-      </ThemeProvider>
+      <Box style={{
+        backgroundColor: blue[800],
+        textAlign: 'center'
+      }}>
+        <ThemeProvider theme={darkTheme}>
+          <CssBaseline />
+          <AccountView accountType={API.Asset}></AccountView>
+        </ThemeProvider>
+      </Box>
     )
   }
 }

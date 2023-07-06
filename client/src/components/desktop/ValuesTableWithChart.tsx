@@ -49,10 +49,6 @@ export const chartOptions = {
   }
 }
 
-interface Props {
-  accountType: string
-}
-
 const formatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD'
@@ -84,7 +80,11 @@ function TabPanel (props: TabPanelProps): React.ReactElement {
   )
 }
 
-export default function ValuesTableWithChart ({ accountType }: Props): JSX.Element {
+interface Props {
+  accountType: string
+}
+
+export default function ValuesTableWithChart ({ accountType }: Props): React.ReactElement {
   const [tabValue, setTabValue] = React.useState(0)
   const [accounts, setAccounts] = React.useState([] as Account[])
 
