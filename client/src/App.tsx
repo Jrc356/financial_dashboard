@@ -2,7 +2,7 @@ import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import React from 'react'
 import { green } from '@mui/material/colors'
-import AccountView from './components/mobile/AccountView'
+import AccountView from './views/AccountView'
 import { API } from './lib/api'
 import { Box } from '@mui/material'
 

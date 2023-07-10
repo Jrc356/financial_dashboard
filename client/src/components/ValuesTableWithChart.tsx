@@ -23,7 +23,7 @@ import {
 } from 'chart.js'
 import React from 'react'
 import { Line } from 'react-chartjs-2'
-import { API, GetAll, GetValuesForAccount, type Account } from '../../lib/api'
+import { API, GetAll, GetValuesForAccount, type Account } from '../lib/api'
 
 ChartJS.register(
   CategoryScale,

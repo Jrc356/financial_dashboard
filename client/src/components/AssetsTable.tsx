@@ -8,7 +8,7 @@ import {
   TableRow
 } from '@mui/material'
 import React from 'react'
-import { GetAllAssets, type Asset } from '../../lib/api'
+import { GetAllAssets, type Asset } from '../lib/api'
 
 export default function AssetsTable (): JSX.Element {
   const [assets, setAssets] = React.useState([] as Asset[])
