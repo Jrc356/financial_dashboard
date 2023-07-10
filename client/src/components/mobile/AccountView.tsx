@@ -1,19 +1,27 @@
 import React from 'react'
 import { API, GetAll, type Account, GetValuesForAccount } from '../../lib/api'
 import {
+  Box,
   Card,
   CardActionArea,
   CardContent,
   Divider,
   Grid,
+  styled,
   Typography
 } from '@mui/material'
-import { green } from '@mui/material/colors'
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight'
 
 const formatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD'
 })
+
+const StyledCardActionArea = styled(CardActionArea)`
+    .MuiTouchRipple-child {
+        background-color: black;
+    }
+`
 
 interface Props {
   accountType: API
@@ -55,19 +63,15 @@ export default function AccountView ({
     for (const account of accounts) {
       if (account.Values.length === 0) {
         valuePromises.push(GetValuesForAccount(api, account))
-      } else {
-        valuePromises.push(
-          new Promise<Account>((resolve, reject) => {
-            resolve(account)
-          })
-        )
       }
     }
-    Promise.all(valuePromises)
-      .then((accs) => {
-        setAccounts(accs)
-      })
-      .catch(console.error)
+    if (valuePromises.length > 0) {
+      Promise.all(valuePromises)
+        .then((accs) => {
+          setAccounts(accs)
+        })
+        .catch(console.error)
+    }
   }, [accounts])
 
   React.useEffect(() => {
@@ -92,67 +96,76 @@ export default function AccountView ({
       overflow={'hidden'}
     >
       <Grid item>
-        <Typography variant="h6" marginTop={6}>
+        <Typography variant="h6" color={'black'} marginTop={6}>
           Total Value:
         </Typography>
-        <Typography variant="h2">{formatter.format(totalValue)}</Typography>
+        <Typography variant="h2" color={'black'}>{formatter.format(totalValue)}</Typography>
         <Divider
           sx={{
             marginTop: 6,
             marginBottom: 6,
             border: 2,
-            borderColor: 'white',
+            borderColor: 'black',
             opacity: 100,
             marginLeft: '5%',
             marginRight: '5%',
             justifyContent: 'center'
           }}
-        ></Divider>
+        >
+        </Divider>
         {accounts.map((account, i) => (
           <Card
             key={i}
             sx={{
-              backgroundColor: 'white',
+              backgroundColor: 'whitesmoke',
               height: 120,
               width: 330,
               margin: 2,
               borderRadius: 3
             }}
           >
-            <CardActionArea onClick={() => { console.log(account.Name) }} TouchRippleProps={{ color: green[100] }}>
-              <Card
-                sx={{
-                  backgroundColor: 'black',
-                  height: 60,
-                  width: 165,
-                  margin: 2,
-                  borderRadius: 3
-                }}
-              ></Card>
-              {/* //TODO why the fuck won't the ripple work right */}
+            <StyledCardActionArea onClick={() => { console.log(account.Name) }}>
               <CardContent>
-                {/* <Typography
-                  variant="h4"
-                  color={'black'}
-                  align="left"
-                  fontSize={28}
-                >
-                  {account.Name.length > 18
-                    ? `${account.Name.slice(0, 18)}...`
-                    : account.Name}
-                </Typography>
-                <Typography
-                  variant="h4"
-                  color={'black'}
-                  align="left"
-                  fontSize={20}
-                  paddingTop={3}
-                >
-                  {account.Values.length > 0 &&
-                    formatter.format(account.Values[0].Value)}
-                </Typography> */}
+                <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 2 }}>
+                    <Typography
+                      variant="h4"
+                      color={'black'}
+                      align="left"
+                      fontSize={28}
+                    >
+                      {account.Name.length > 16
+                        ? `${account.Name.slice(0, 16)}...`
+                        : account.Name}
+                    </Typography>
+                    <Typography
+                      variant="h4"
+                      color={'black'}
+                      align="left"
+                      fontSize={20}
+                      paddingTop={3}
+                    >
+                      {account.Values.length > 0 &&
+                        formatter.format(account.Values[0].Value)}
+                    </Typography>
+                  </Box>
+                  <Box sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    textAlign: 'right',
+                    textAlignVertical: 'center'
+                  }}>
+                    {/* display: 'flex', flexDirection: 'column', flexGrow: 3,  */}
+                    <KeyboardArrowRightIcon sx={{
+                      color: 'black',
+                      flex: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center'
+                    }}/>
+                  </Box>
+                </Box>
               </CardContent>
-            </CardActionArea>
+            </StyledCardActionArea>
           </Card>
         ))}
       </Grid>
