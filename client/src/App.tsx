@@ -5,6 +5,8 @@ import { green } from '@mui/material/colors'
 import AccountView from './views/AccountView'
 import { API } from './lib/api'
 import { Box } from '@mui/material'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import BottomNav from './components/BottomNav'
 
 const darkTheme = createTheme({
   palette: {
@@ -12,18 +14,22 @@ const darkTheme = createTheme({
   }
 })
 
-export default class App extends React.Component {
-  render (): React.ReactNode {
-    return (
+export default function App (): React.ReactElement {
+  return (
       <Box style={{
         backgroundColor: green[300],
         textAlign: 'center'
       }}>
         <ThemeProvider theme={darkTheme}>
           <CssBaseline />
-          <AccountView accountType={API.Asset}></AccountView>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/assets" element={<AccountView accountType={API.Asset}/>} />
+              <Route path="/liabilities" element={<AccountView accountType={API.Liability}/>} />
+            </Routes>
+            <BottomNav />
+          </BrowserRouter>
         </ThemeProvider>
       </Box>
-    )
-  }
+  )
 }
