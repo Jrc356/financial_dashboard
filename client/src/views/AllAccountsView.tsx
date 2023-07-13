@@ -16,7 +16,7 @@ interface Props {
   accountType: API
 }
 
-export default function AccountView ({
+export default function AllAccountsView ({
   accountType
 }: Props): React.ReactElement {
   const [accounts, setAccounts] = React.useState([] as Account[])

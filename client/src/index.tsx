@@ -3,7 +3,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { green } from '@mui/material/colors'
-import AccountView from './views/AccountView'
+import AllAccountsView from './views/AllAccountsView'
 import { API } from './lib/api'
 import { Box } from '@mui/material'
 import {
@@ -39,11 +39,11 @@ function Base (children?: React.ReactElement): React.ReactElement {
 const router = createBrowserRouter([
   {
     path: '/assets',
-    element: Base(<AccountView accountType={API.Asset}/>)
+    element: Base(<AllAccountsView accountType={API.Asset}/>)
   },
   {
     path: '/liabilities',
-    element: Base(<AccountView accountType={API.Liability}/>)
+    element: Base(<AllAccountsView accountType={API.Liability}/>)
   }
 ])
 
