@@ -12,17 +12,6 @@ import {
 } from 'react-router-dom'
 import BottomNav from './components/BottomNav'
 
-const router = createBrowserRouter([
-  {
-    path: '/assets',
-    element: Base(<AccountView accountType={API.Asset}/>)
-  },
-  {
-    path: '/liabilities',
-    element: Base(<AccountView accountType={API.Liability}/>)
-  }
-])
-
 function Base (children?: React.ReactElement): React.ReactElement {
   const darkTheme = createTheme({
     palette: {
@@ -42,6 +31,17 @@ function Base (children?: React.ReactElement): React.ReactElement {
     </Box>
   )
 }
+
+const router = createBrowserRouter([
+  {
+    path: '/assets',
+    element: Base(<AccountView accountType={API.Asset}/>)
+  },
+  {
+    path: '/liabilities',
+    element: Base(<AccountView accountType={API.Liability}/>)
+  }
+])
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <RouterProvider router={router} />
