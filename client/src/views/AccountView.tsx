@@ -8,6 +8,10 @@ import {
 import AccountCard from '../components/AccountCard'
 import moneyFormatter from '../lib/formatter'
 
+function toTitleCase (str: string): string {
+  return str.charAt(0).toUpperCase() + str.substr(1).toLowerCase()
+}
+
 interface Props {
   accountType: API
 }
@@ -83,7 +87,7 @@ export default function AccountView ({
     >
       <Grid item>
         <Typography variant="h6" color={'black'} marginTop={6}>
-          Total {api} Value:
+          Total {toTitleCase(api)} Value:
         </Typography>
         <Typography variant="h2" color={'black'}>{moneyFormatter.format(totalValue)}</Typography>
         <Divider
