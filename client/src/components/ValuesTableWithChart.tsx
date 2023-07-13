@@ -24,6 +24,7 @@ import {
 import React from 'react'
 import { Line } from 'react-chartjs-2'
 import { API, GetAll, GetValuesForAccount, type Account } from '../lib/api'
+import moneyFormatter from '../lib/formatter'
 
 ChartJS.register(
   CategoryScale,
@@ -48,11 +49,6 @@ export const chartOptions = {
     }
   }
 }
-
-const formatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD'
-})
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -183,7 +179,7 @@ export default function ValuesTableWithChart ({ accountType }: Props): React.Rea
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                   >
                     <TableCell component="th" scope="row">{new Date(value.Date).toLocaleString()}</TableCell>
-                    <TableCell>{formatter.format(value.Value)}</TableCell>
+                    <TableCell>{moneyFormatter.format(value.Value)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

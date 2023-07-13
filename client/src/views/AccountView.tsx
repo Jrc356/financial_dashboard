@@ -6,11 +6,7 @@ import {
   Typography
 } from '@mui/material'
 import AccountCard from '../components/AccountCard'
-
-const formatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD'
-})
+import moneyFormatter from '../lib/formatter'
 
 interface Props {
   accountType: API
@@ -87,9 +83,9 @@ export default function AccountView ({
     >
       <Grid item>
         <Typography variant="h6" color={'black'} marginTop={6}>
-          Total Value:
+          Total {api} Value:
         </Typography>
-        <Typography variant="h2" color={'black'}>{formatter.format(totalValue)}</Typography>
+        <Typography variant="h2" color={'black'}>{moneyFormatter.format(totalValue)}</Typography>
         <Divider
           sx={{
             marginTop: 6,
