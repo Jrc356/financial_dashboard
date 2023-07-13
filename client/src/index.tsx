@@ -21,7 +21,11 @@ function Base (children?: React.ReactElement): React.ReactElement {
   return (
   <Box style={{
     backgroundColor: green[300],
-    textAlign: 'center'
+    textAlign: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    overflowY: 'auto',
+    paddingBottom: '50px'
   }}>
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />

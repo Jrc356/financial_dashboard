@@ -82,7 +82,8 @@ export default function AccountView ({
       justifyContent="center"
       alignItems="center"
       direction={'column'}
-      overflow={'hidden'}
+      overflow={'auto'}
+      flex={1}
     >
       <Grid item>
         <Typography variant="h6" color={'black'} marginTop={6}>
