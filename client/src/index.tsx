@@ -25,7 +25,8 @@ function Base (children?: React.ReactElement): React.ReactElement {
     display: 'flex',
     flexDirection: 'column',
     overflowY: 'auto',
-    paddingBottom: '50px'
+    paddingBottom: '50px',
+    paddingTop: '25px'
   }}>
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />
