@@ -2,7 +2,7 @@ import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { green } from '@mui/material/colors'
+import { blue } from '@mui/material/colors'
 import AllAccountsView from './views/AllAccountsView'
 import { API } from './lib/api'
 import { Box } from '@mui/material'
@@ -20,7 +20,7 @@ function Base (children?: React.ReactElement): React.ReactElement {
   })
   return (
   <Box style={{
-    backgroundColor: green[300],
+    backgroundColor: blue[100],
     textAlign: 'center',
     display: 'flex',
     flexDirection: 'column',
