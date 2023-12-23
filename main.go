@@ -31,7 +31,7 @@ func init() {
 		"user=%s password=%s host=%s port=%s dbname=%s sslmode=disable",
 		"postgres",
 		"postgres",
-		"localhost",
+		"10.0.0.202",
 		"5432",
 		"postgres",
 	)
