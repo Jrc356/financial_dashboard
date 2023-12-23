@@ -4,18 +4,12 @@ import {
   Card,
   CardActionArea,
   CardContent,
-  styled,
   Typography
 } from '@mui/material'
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight'
 import { type Account } from '../lib/api'
 import moneyFormatter from '../lib/formatter'
-
-const StyledCardActionArea = styled(CardActionArea)`
-    .MuiTouchRipple-child {
-        background-color: black;
-    }
-`
+import { Link } from 'react-router-dom'
 
 interface Props {
   account: Account
@@ -32,7 +26,14 @@ export default function AccountCard ({ account }: Props): React.ReactElement {
         borderRadius: 3
       }}
     >
-      <StyledCardActionArea onClick={() => { console.log(account.Name) }}>
+      <CardActionArea
+        component={Link}
+        to={`/accounts/${account.Name}`}
+        sx={{
+          '&& .MuiTouchRipple-child': {
+            backgroundColor: 'black'
+          }
+        }}>
         <CardContent>
           <Box sx={{ display: 'flex', flexDirection: 'row' }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 2 }}>
@@ -72,7 +73,7 @@ export default function AccountCard ({ account }: Props): React.ReactElement {
             </Box>
           </Box>
         </CardContent>
-      </StyledCardActionArea>
+      </CardActionArea>
     </Card>
   )
 }
