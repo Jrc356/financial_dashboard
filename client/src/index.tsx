@@ -11,6 +11,7 @@ import {
   RouterProvider
 } from 'react-router-dom'
 import BottomNav from './components/BottomNav'
+import Home from './views/Home'
 
 function Base (children?: React.ReactElement): React.ReactElement {
   const darkTheme = createTheme({
@@ -38,6 +39,10 @@ function Base (children?: React.ReactElement): React.ReactElement {
 }
 
 const router = createBrowserRouter([
+  {
+    path: '/',
+    element: Base(<Home/>)
+  },
   {
     path: '/assets',
     element: Base(<AllAccountsView accountType={API.Asset}/>)

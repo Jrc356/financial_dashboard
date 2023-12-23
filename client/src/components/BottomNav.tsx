@@ -5,6 +5,7 @@ import BottomNavigationAction from '@mui/material/BottomNavigationAction'
 import PaidIcon from '@mui/icons-material/Paid'
 import CreditCardIcon from '@mui/icons-material/CreditCard'
 import { useLocation, Link } from 'react-router-dom'
+import { Home } from '@mui/icons-material'
 
 export default function BottomNav (): React.ReactElement {
   return (
@@ -13,6 +14,14 @@ export default function BottomNav (): React.ReactElement {
         showLabels
         value={useLocation().pathname}
       >
+        <BottomNavigationAction
+          label='Home'
+          icon={<Home/>}
+          component={Link}
+          to='/'
+          value='/'
+          reloadDocument
+        />
         <BottomNavigationAction
           label='Assets'
           icon={<PaidIcon/>}
