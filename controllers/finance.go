@@ -19,14 +19,14 @@ func NewFinanceController(db *gorm.DB, router *gin.RouterGroup) {
 }
 
 func CalculateTotalAssetValue(db *gorm.DB) (float64, error) {
-	assets, err := models.GetAllAssets(db)
+	assets, err := models.GetAllAccountsByClass(db, models.Asset)
 	if err != nil {
 		return 0, err
 	}
 
 	var totalAssets float64
 	for _, asset := range assets {
-		assetValue, err := models.GetLastAssetValue(db, asset.Name)
+		assetValue, err := models.GetLastAccountValue(db, asset.Name)
 		if err != nil {
 			return 0, err
 		}
@@ -36,18 +36,18 @@ func CalculateTotalAssetValue(db *gorm.DB) (float64, error) {
 }
 
 func CalculateTotalLiabilityValue(db *gorm.DB) (float64, error) {
-	liabilities, err := models.GetAllLiabilities(db)
+	liabilities, err := models.GetAllAccountsByClass(db, models.Liability)
 	if err != nil {
 		return 0, err
 	}
 
 	var totalLiabilities float64
 	for _, liability := range liabilities {
-		liabilityValue, err := models.GetLastLiabilityValue(db, liability.Name)
+		liabilityValue, err := models.GetLastAccountValue(db, liability.Name)
 		if err != nil {
 			return 0, err
 		}
-		totalLiabilities += liabilityValue
+		totalLiabilities += liabilityValue.Value
 	}
 	return totalLiabilities, nil
 }

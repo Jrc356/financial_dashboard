@@ -44,91 +44,89 @@ func init() {
 		log.Panicln(err)
 	}
 
-	db.Migrator().DropTable(&models.Asset{})
-	db.Migrator().DropTable(&models.AssetValue{})
-	db.Migrator().DropTable(&models.Liability{})
-	db.Migrator().DropTable(&models.LiabilityValue{})
+	db.Migrator().DropTable(&models.Account{})
+	db.Migrator().DropTable(&models.AccountValue{})
 
 	db.AutoMigrate(
-		&models.Asset{},
-		&models.AssetValue{},
-		&models.Liability{},
-		&models.LiabilityValue{},
+		&models.Account{},
+		&models.AccountValue{},
 	)
 
 	// TODO: Remove this test data
-	assets := []models.Asset{
+	accounts := []models.Account{
 		{
-			Name: "Our Savings Account",
-			Type: models.Savings,
+			Name:     "Our Savings Account",
+			Class:    models.Asset,
+			Category: models.Cash,
 		},
 		{
-			Name: "Our Checking Account",
-			Type: models.Checking,
+			Name:     "Our Checking Account",
+			Class:    models.Asset,
+			Category: models.Cash,
 		},
 		{
 			Name:      "My 401k",
-			Type:      models.Retirement,
+			Class:     models.Asset,
+			Category:  models.Retirement,
 			TaxBucket: models.TaxDeferred,
 		},
 		{
 			Name:      "SO 401k",
-			Type:      models.Retirement,
+			Class:     models.Asset,
+			Category:  models.Retirement,
 			TaxBucket: models.TaxDeferred,
 		},
 		{
 			Name:      "My IRA",
-			Type:      models.Retirement,
+			Class:     models.Asset,
+			Category:  models.Retirement,
 			TaxBucket: models.Roth,
 		},
 		{
 			Name:      "SO IRA",
-			Type:      models.Retirement,
+			Class:     models.Asset,
+			Category:  models.Retirement,
 			TaxBucket: models.Roth,
 		},
 		{
 			Name:      "House",
-			Type:      models.Retirement,
+			Class:     models.Asset,
+			Category:  models.Retirement,
 			TaxBucket: models.Roth,
 		},
+		{
+			Name:     "Student Loan",
+			Class:    models.Liability,
+			Category: models.Loan,
+		},
+		{
+			Name:     "Mortgage",
+			Class:    models.Liability,
+			Category: models.Loan,
+		},
+		{
+			Name:     "Auto Loan",
+			Class:    models.Liability,
+			Category: models.Loan,
+		},
+		{
+			Name:     "Credit Card",
+			Class:    models.Liability,
+			Category: models.CreditCard,
+		},
 	}
-	for _, asset := range assets {
-		if err := models.CreateAsset(db, asset); err != nil {
+	for _, account := range accounts {
+		if err := models.CreateAccount(db, account); err != nil {
 			log.Panic(err)
 		}
 
 		for i := 0; i < 10; i++ {
-			value := models.AssetValue{
-				AssetName: asset.Name,
-				Value:     randomDollarAmount(),
+			value := models.AccountValue{
+				AccountName: account.Name,
+				Value:       randomDollarAmount(),
 			}
 
-			if err := models.CreateAssetValue(db, value); err != nil {
-				log.Panic(err)
-			}
-		}
-	}
-
-	liabilities := []string{
-		"Student Loan",
-		"Mortgage",
-		"Auto Loan",
-		"Credit Card",
-	}
-	for _, liabilityName := range liabilities {
-		liability := models.Liability{
-			Name: liabilityName,
-		}
-		if err := models.CreateLiability(db, liability); err != nil {
-			log.Panic(err)
-		}
-
-		for i := 0; i < 10; i++ {
-			value := models.LiabilityValue{
-				LiabilityName: liabilityName,
-				Value:         randomDollarAmount(),
-			}
-			if err := models.CreateLiabilityValue(db, value); err != nil {
+			if err := models.CreateAccountValue(db, value); err != nil {
 				log.Panic(err)
 			}
 		}
@@ -140,8 +138,7 @@ func main() {
 	router.Use(static.Serve("/", static.LocalFile("./client/build", true)))
 	router.Use(cors.Default())
 	apiRouter := router.Group("/api")
-	controllers.NewAssetController(db, apiRouter)
-	controllers.NewLiabilityController(db, apiRouter)
+	controllers.NewAccountController(db, apiRouter)
 	controllers.NewFinanceController(db, apiRouter)
 	router.Run()
 }
