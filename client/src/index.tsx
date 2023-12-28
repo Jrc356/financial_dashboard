@@ -4,7 +4,6 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { blue } from '@mui/material/colors'
 import AllAccountsView from './views/AllAccountsView'
-import { API } from './lib/api'
 import { Box } from '@mui/material'
 import {
   createBrowserRouter,
@@ -45,11 +44,11 @@ const router = createBrowserRouter([
   },
   {
     path: '/assets',
-    element: Base(<AllAccountsView accountType={API.Asset}/>)
+    element: Base(<AllAccountsView accountClass={'asset'}/>)
   },
   {
     path: '/liabilities',
-    element: Base(<AllAccountsView accountType={API.Liability}/>)
+    element: Base(<AllAccountsView accountClass={'liability'}/>)
   }
 ])
 

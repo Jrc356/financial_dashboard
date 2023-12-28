@@ -28,7 +28,7 @@ export default function AccountCard ({ account }: Props): React.ReactElement {
     >
       <CardActionArea
         component={Link}
-        to={`/accounts/${account.Name}`}
+        to={`/accounts?name=${account.name}`}
         sx={{
           '&& .MuiTouchRipple-child': {
             backgroundColor: 'black'
@@ -43,9 +43,9 @@ export default function AccountCard ({ account }: Props): React.ReactElement {
                 align="left"
                 fontSize={28}
               >
-                {account.Name.length > 16
-                  ? `${account.Name.slice(0, 16)}...`
-                  : account.Name}
+                {account.name.length > 16
+                  ? `${account.name.slice(0, 16)}...`
+                  : account.name}
               </Typography>
               <Typography
                 variant="h4"
@@ -54,8 +54,8 @@ export default function AccountCard ({ account }: Props): React.ReactElement {
                 fontSize={20}
                 paddingTop={3}
               >
-                {account.Values.length > 0 &&
-                  moneyFormatter.format(account.Values[0].Value)}
+                {account.values.length > 0 &&
+                  moneyFormatter.format(account.values[0].value)}
               </Typography>
             </Box>
             <Box sx={{

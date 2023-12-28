@@ -1,5 +1,5 @@
 import React from 'react'
-import { API, GetAll, type Account, GetValuesForAccount } from '../lib/api'
+import { type Account, GetValuesForAccount, GetAllAccountsByClass } from '../lib/api'
 import {
   Divider,
   Grid,
@@ -13,31 +13,15 @@ function toTitleCase (str: string): string {
 }
 
 interface Props {
-  accountType: API
+  accountClass: string
 }
 
-export default function AllAccountsView ({
-  accountType
-}: Props): React.ReactElement {
+export default function AllAccountsView ({ accountClass }: Props): React.ReactElement {
   const [accounts, setAccounts] = React.useState([] as Account[])
   const [totalValue, setTotalValue] = React.useState(0)
 
-  let api = API.Asset
-  switch (accountType) {
-    case API.Asset:
-      api = API.Asset
-      break
-    case API.Liability:
-      api = API.Liability
-      break
-    default:
-      console.error('unknown account type')
-      break
-  }
-
-  // TODO: This is so gross
   React.useEffect(() => {
-    GetAll(api)
+    GetAllAccountsByClass(accountClass)
       .then((accs) => {
         setAccounts(accs)
       })
@@ -50,8 +34,8 @@ export default function AllAccountsView ({
     }
     const valuePromises = []
     for (const account of accounts) {
-      if (account.Values.length === 0) {
-        valuePromises.push(GetValuesForAccount(api, account))
+      if (account.values.length === 0) {
+        valuePromises.push(GetValuesForAccount(account))
       }
     }
     if (valuePromises.length > 0) {
@@ -69,8 +53,8 @@ export default function AllAccountsView ({
     }
     let v = 0
     for (const account of accounts) {
-      if (account.Values.length > 0) {
-        v += account.Values[0].Value
+      if (account.values.length > 0) {
+        v += account.values[0].value
       }
     }
     setTotalValue(v)
@@ -87,7 +71,7 @@ export default function AllAccountsView ({
     >
       <Grid item>
         <Typography variant="h6" color={'black'} marginTop={6}>
-          Total {toTitleCase(api)} Value:
+          Total {toTitleCase(accountClass)} Value:
         </Typography>
         <Typography variant="h2" color={'black'}>{moneyFormatter.format(totalValue)}</Typography>
         <Divider
@@ -103,9 +87,9 @@ export default function AllAccountsView ({
           }}
         >
         </Divider>
-        {accounts.map((account, i) => (
-          <AccountCard key={i} account={account}></AccountCard>
-        ))}
+        {
+          accounts.map((account, i) => (<AccountCard key={i} account={account}></AccountCard>))
+        }
       </Grid>
     </Grid>
   )

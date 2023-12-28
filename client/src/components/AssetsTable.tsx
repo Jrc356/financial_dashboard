@@ -8,13 +8,13 @@ import {
   TableRow
 } from '@mui/material'
 import React from 'react'
-import { GetAllAssets, type Asset } from '../lib/api'
+import { type Account, GetAllAccountsByClass } from '../lib/api'
 
 export default function AssetsTable (): JSX.Element {
-  const [assets, setAssets] = React.useState([] as Asset[])
+  const [assets, setAssets] = React.useState([] as Account[])
 
   React.useEffect(() => {
-    GetAllAssets()
+    GetAllAccountsByClass('asset')
       .then((a) => {
         setAssets(a)
       })
@@ -37,12 +37,12 @@ export default function AssetsTable (): JSX.Element {
           <TableBody>
             {assets.map((asset) => (
               <TableRow
-                key={asset.Name}
+                key={asset.name}
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
               >
-                <TableCell component="th" scope="row">{asset.Name}</TableCell>
-                <TableCell>{asset.Type}</TableCell>
-                <TableCell>{asset.TaxBucket}</TableCell>
+                <TableCell component="th" scope="row">{asset.name}</TableCell>
+                <TableCell>{asset.class}</TableCell>
+                <TableCell>{asset.taxBucket}</TableCell>
               </TableRow>
             ))}
           </TableBody>

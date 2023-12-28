@@ -23,7 +23,7 @@ import {
 } from 'chart.js'
 import React from 'react'
 import { Line } from 'react-chartjs-2'
-import { API, GetAll, GetValuesForAccount, type Account } from '../lib/api'
+import { GetValuesForAccount, type Account, GetAllAccountsByClass } from '../lib/api'
 import moneyFormatter from '../lib/formatter'
 
 ChartJS.register(
@@ -77,28 +77,15 @@ function TabPanel (props: TabPanelProps): React.ReactElement {
 }
 
 interface Props {
-  accountType: string
+  accountClass: string
 }
 
-export default function ValuesTableWithChart ({ accountType }: Props): React.ReactElement {
+export default function ValuesTableWithChart ({ accountClass }: Props): React.ReactElement {
   const [tabValue, setTabValue] = React.useState(0)
   const [accounts, setAccounts] = React.useState([] as Account[])
 
-  let api = API.Asset
-  switch (accountType) {
-    case API.Asset:
-      api = API.Asset
-      break
-    case API.Liability:
-      api = API.Liability
-      break
-    default:
-      console.error('unknown account type')
-      break
-  }
-
   React.useEffect(() => {
-    GetAll(api)
+    GetAllAccountsByClass(accountClass)
       .then((accs) => {
         setAccounts(accs)
       })
@@ -107,8 +94,8 @@ export default function ValuesTableWithChart ({ accountType }: Props): React.Rea
 
   React.useEffect(() => {
     if (accounts.length === 0) { return }
-    if (accounts[tabValue].Values.length === 0) {
-      GetValuesForAccount(api, accounts[tabValue])
+    if (accounts[tabValue].values.length === 0) {
+      GetValuesForAccount(accounts[tabValue])
         .then((acc) => {
           const a = accounts.slice()
           a[tabValue] = acc
@@ -124,23 +111,23 @@ export default function ValuesTableWithChart ({ accountType }: Props): React.Rea
     labels: [] as string[],
     datasets: [{
       fill: true,
-      label: accounts[tabValue].Name,
+      label: accounts[tabValue].name,
       data: [] as number[],
       borderColor: 'rgb(53, 162, 235)',
       backgroundColor: 'rgba(53, 162, 235, 0.5)'
     }]
   }
 
-  for (const value of accounts[tabValue].Values) {
+  for (const value of accounts[tabValue].values) {
     // TODO: drop time from date
     // TODO: depends on having unique days
-    data.labels.push(new Date(value.Date).toLocaleString())
-    data.datasets[0].data.unshift(value.Value)
+    data.labels.push(new Date(value.date).toLocaleString())
+    data.datasets[0].data.unshift(value.value)
   }
 
   const handleChange = (event: React.SyntheticEvent, tabValue: number): void => {
-    if (accounts[tabValue].Values.length === 0) {
-      GetValuesForAccount(api, accounts[tabValue])
+    if (accounts[tabValue].values.length === 0) {
+      GetValuesForAccount(accounts[tabValue])
         .then((acc) => {
           const a = accounts.slice()
           a[tabValue] = acc
@@ -156,13 +143,13 @@ export default function ValuesTableWithChart ({ accountType }: Props): React.Rea
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabValue} onChange={handleChange} aria-label="accounts">
         {accounts.map((account) => (
-          <Tab key={account.Name} label={account.Name} />
+          <Tab key={account.name} label={account.name} />
         ))}
         </Tabs>
       </Box>
 
       {accounts.map((account, i) => (
-        <TabPanel key={account.Name} value={tabValue} index={i}>
+        <TabPanel key={account.name} value={tabValue} index={i}>
           <Line options={chartOptions} data={data} />
           <TableContainer component={Paper}>
             <Table aria-label="accounts table">
@@ -173,13 +160,13 @@ export default function ValuesTableWithChart ({ accountType }: Props): React.Rea
                 </TableRow>
               </TableHead>
               <TableBody>
-                {accounts[i].Values.map((value) => (
+                {accounts[i].values.map((value) => (
                   <TableRow
-                    key={Date.parse(value.Date).toString()}
+                    key={Date.parse(value.date).toString()}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                   >
-                    <TableCell component="th" scope="row">{new Date(value.Date).toLocaleString()}</TableCell>
-                    <TableCell>{moneyFormatter.format(value.Value)}</TableCell>
+                    <TableCell component="th" scope="row">{new Date(value.date).toLocaleString()}</TableCell>
+                    <TableCell>{moneyFormatter.format(value.value)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

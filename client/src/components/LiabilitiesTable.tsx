@@ -8,13 +8,13 @@ import {
   TableRow
 } from '@mui/material'
 import React from 'react'
-import { GetAllLiabilities, type Liability } from '../lib/api'
+import { GetAllAccountsByClass, type Account } from '../lib/api'
 
 export default function LiabilitiesTable (): JSX.Element {
-  const [liabilities, setLiabilities] = React.useState([] as Liability[])
+  const [liabilities, setLiabilities] = React.useState([] as Account[])
 
   React.useEffect(() => {
-    GetAllLiabilities()
+    GetAllAccountsByClass('liability')
       .then((l) => {
         setLiabilities(l)
       })
@@ -34,8 +34,8 @@ export default function LiabilitiesTable (): JSX.Element {
           </TableHead>
           <TableBody>
             {liabilities.map((asset) => (
-              <TableRow key={asset.Name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                <TableCell component="th" scope="row">{asset.Name}</TableCell>
+              <TableRow key={asset.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                <TableCell component="th" scope="row">{asset.name}</TableCell>
               </TableRow>
             ))}
           </TableBody>
