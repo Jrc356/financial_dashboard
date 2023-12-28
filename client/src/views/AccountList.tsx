@@ -16,7 +16,7 @@ interface Props {
   accountClass: string
 }
 
-export default function AllAccountsView ({ accountClass }: Props): React.ReactElement {
+export default function AccountList ({ accountClass }: Props): React.ReactElement {
   const [accounts, setAccounts] = React.useState([] as Account[])
   const [totalValue, setTotalValue] = React.useState(0)
 

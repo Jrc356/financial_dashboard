@@ -3,7 +3,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { blue } from '@mui/material/colors'
-import AllAccountsView from './views/AllAccountsView'
+import AccountList from './views/AccountList'
 import { Box } from '@mui/material'
 import {
   createBrowserRouter,
@@ -11,6 +11,7 @@ import {
 } from 'react-router-dom'
 import BottomNav from './components/BottomNav'
 import Home from './views/Home'
+import Account from './views/Account'
 
 function Base (children?: React.ReactElement): React.ReactElement {
   const darkTheme = createTheme({
@@ -44,11 +45,15 @@ const router = createBrowserRouter([
   },
   {
     path: '/assets',
-    element: Base(<AllAccountsView accountClass={'asset'}/>)
+    element: Base(<AccountList accountClass={'asset'}/>)
   },
   {
     path: '/liabilities',
-    element: Base(<AllAccountsView accountClass={'liability'}/>)
+    element: Base(<AccountList accountClass={'liability'}/>)
+  },
+  {
+    path: '/accounts',
+    element: Base(<Account/>)
   }
 ])
 
