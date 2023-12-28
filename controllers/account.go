@@ -74,6 +74,7 @@ func (controller *AccountController) GetAccounts(context *gin.Context) {
 			return
 		}
 		context.JSON(http.StatusOK, account)
+		return
 	}
 
 	if class != "" {
@@ -83,6 +84,7 @@ func (controller *AccountController) GetAccounts(context *gin.Context) {
 			return
 		}
 		context.JSON(http.StatusOK, accounts)
+		return
 	}
 
 	accounts, err := models.GetAllAccounts(controller.DB)
