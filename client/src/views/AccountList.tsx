@@ -17,7 +17,7 @@ interface Props {
 }
 
 export default function AccountList ({ accountClass }: Props): React.ReactElement {
-  const [accounts, setAccounts] = React.useState([] as Account[])
+  const [accounts, setAccounts] = React.useState<Account[]>()
   const [totalValue, setTotalValue] = React.useState(0)
 
   React.useEffect(() => {
@@ -29,7 +29,7 @@ export default function AccountList ({ accountClass }: Props): React.ReactElemen
   }, [])
 
   React.useEffect(() => {
-    if (accounts.length === 0) {
+    if (accounts == null) {
       return
     }
     const valuePromises = []
@@ -48,7 +48,7 @@ export default function AccountList ({ accountClass }: Props): React.ReactElemen
   }, [accounts])
 
   React.useEffect(() => {
-    if (accounts.length === 0) {
+    if (accounts == null) {
       return
     }
     let v = 0
@@ -88,7 +88,7 @@ export default function AccountList ({ accountClass }: Props): React.ReactElemen
         >
         </Divider>
         {
-          accounts.map((account, i) => (<AccountCard key={i} account={account}></AccountCard>))
+          accounts?.map((account, i) => (<AccountCard key={i} account={account}></AccountCard>))
         }
       </Grid>
     </Grid>

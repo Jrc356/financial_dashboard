@@ -10,12 +10,17 @@ export interface Account {
 
 export interface AccountValue {
   value: number
-  date: string
+  CreatedAt: string
 }
 
 export const Client = axios.create({
   baseURL: 'http://localhost:8080/api/'
 })
+
+export const GetAccountByName = async (name: string): Promise<Account> => {
+  const response = await Client.get(`accounts?name=${name}`)
+  return response.data as Account
+}
 
 export const GetAllAccounts = async (): Promise<Account[]> => {
   const response = await Client.get('accounts')
