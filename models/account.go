@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"math"
 	"time"
 
 	"gorm.io/gorm"
@@ -39,7 +38,7 @@ type Account struct {
 	Class     AccountClass    `json:"class"`
 	Category  AccountCategory `json:"category"`
 	TaxBucket TaxBucket       `json:"taxBucket"`
-	Values    AccountValue    `gorm:"foreignKey:AccountName;references:Name"`
+	Values    []AccountValue  `json:"values" gorm:"foreignKey:AccountName;references:Name"`
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -69,7 +68,7 @@ func ValidateAccount(account Account) error {
 
 func AccountExists(db *gorm.DB, name string) (bool, error) {
 	count := int64(0)
-	if err := db.Where("name = ?", name).Count(&count).Error; err != nil {
+	if err := db.Model(&Account{}).Where("name = ?", name).Count(&count).Error; err != nil {
 		return false, err
 	}
 	return count > 0, nil
@@ -86,19 +85,19 @@ func CreateAccount(db *gorm.DB, account Account) error {
 
 func GetAllAccounts(db *gorm.DB) ([]Account, error) {
 	var accounts []Account
-	result := db.Find(&accounts)
+	result := db.Preload("Values", func(db *gorm.DB) *gorm.DB { return db.Order("created_at desc") }).Find(&accounts)
 	return accounts, result.Error
 }
 
 func GetAccountByName(db *gorm.DB, accountName string) (Account, error) {
 	var account Account
-	result := db.Where("name = ?", accountName).First(&account)
+	result := db.Preload("Values", func(db *gorm.DB) *gorm.DB { return db.Order("created_at desc") }).Where("name = ?", accountName).First(&account)
 	return account, result.Error
 }
 
 func GetAllAccountsByClass(db *gorm.DB, class AccountClass) ([]Account, error) {
 	var accounts []Account
-	result := db.Where("class = ?", class).Find(&accounts)
+	result := db.Preload("Values", func(db *gorm.DB) *gorm.DB { return db.Order("created_at desc") }).Where("class = ?", class).Find(&accounts)
 	return accounts, result.Error
 }
 
@@ -112,7 +111,7 @@ func UpdateAccount(db *gorm.DB, accountName string, updates Account) (Account, e
 		return account, err
 	}
 
-	result := db.Model(&account).Updates(&updates)
+	result := db.Preload("Values", func(db *gorm.DB) *gorm.DB { return db.Order("created_at desc") }).Model(&account).Updates(&updates)
 	return account, result.Error
 }
 
@@ -124,35 +123,4 @@ func DeleteAccount(db *gorm.DB, accountName string) (Account, error) {
 
 	result := db.Delete(&account)
 	return account, result.Error
-}
-
-type AccountValue struct {
-	ID          uint
-	AccountName string
-	Value       float64 `json:"value"`
-	CreatedAt   time.Time
-}
-
-func CreateAccountValue(db *gorm.DB, av AccountValue) error {
-	av.Value = math.Round(av.Value*100) / 100
-	result := db.Create(&av)
-	return result.Error
-}
-
-func GetAllAccountValues(db *gorm.DB) ([]AccountValue, error) {
-	var accountValues []AccountValue
-	result := db.Order("created_at desc").Find(&accountValues)
-	return accountValues, result.Error
-}
-
-func GetAccountValues(db *gorm.DB, accountName string) ([]AccountValue, error) {
-	var accountValues []AccountValue
-	result := db.Order("created_at desc").Where("account_name = ?", accountName).Find(&accountValues)
-	return accountValues, result.Error
-}
-
-func GetLastAccountValue(db *gorm.DB, accountName string) (AccountValue, error) {
-	var accountValue AccountValue
-	result := db.Order("created_at desc").Where("account_name = ?", accountName).Find(&accountValue).Limit(1)
-	return accountValue, result.Error
 }
