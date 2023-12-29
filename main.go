@@ -5,6 +5,7 @@ import (
 	"log"
 	"math"
 	"math/rand"
+	"time"
 
 	"github.com/Jrc356/financial_dashboard/controllers"
 	"github.com/Jrc356/financial_dashboard/models"
@@ -120,16 +121,19 @@ func init() {
 			log.Panic(err)
 		}
 
-		for i := 0; i < 10; i++ {
-			value := models.AccountValue{
-				AccountName: account.Name,
-				Value:       randomDollarAmount(),
-			}
+		go func(account models.Account) {
+			for i := 0; i < 10; i++ {
+				value := models.AccountValue{
+					AccountName: account.Name,
+					Value:       randomDollarAmount(),
+				}
 
-			if err := models.CreateAccountValue(db, value); err != nil {
-				log.Panic(err)
+				if err := models.CreateAccountValue(db, value); err != nil {
+					log.Panic(err)
+				}
+				time.Sleep(2 * time.Second)
 			}
-		}
+		}(account)
 	}
 }
 
