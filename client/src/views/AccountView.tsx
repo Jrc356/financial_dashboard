@@ -37,7 +37,7 @@ ChartJS.register(
   Legend
 )
 
-export const chartOptions = {
+const chartOptions = {
   responsive: true,
   plugins: {
     legend: {
