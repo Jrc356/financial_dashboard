@@ -10,7 +10,6 @@ export default function Home (): React.ReactElement {
   React.useEffect(() => {
     GetAllAccounts()
       .then((accs) => {
-        console.log(accs)
         setAccounts(accs)
       })
       .catch(console.error)
