@@ -1,5 +1,5 @@
 import React from 'react'
-import { type Account, GetValuesForAccount, GetAllAccountsByClass } from '../lib/api'
+import { type Account, GetAllAccountsByClass } from '../lib/api'
 import {
   Divider,
   Grid,
@@ -9,7 +9,7 @@ import AccountCard from '../components/AccountCard'
 import moneyFormatter from '../lib/formatter'
 
 function toTitleCase (str: string): string {
-  return str.charAt(0).toUpperCase() + str.substr(1).toLowerCase()
+  return str.charAt(0).toUpperCase() + str.substring(1).toLowerCase()
 }
 
 interface Props {
@@ -27,25 +27,6 @@ export default function AccountListView ({ accountClass }: Props): React.ReactEl
       })
       .catch(console.error)
   }, [])
-
-  React.useEffect(() => {
-    if (accounts == null) {
-      return
-    }
-    const valuePromises = []
-    for (const account of accounts) {
-      if (account.values.length === 0) {
-        valuePromises.push(GetValuesForAccount(account))
-      }
-    }
-    if (valuePromises.length > 0) {
-      Promise.all(valuePromises)
-        .then((accs) => {
-          setAccounts(accs)
-        })
-        .catch(console.error)
-    }
-  }, [accounts])
 
   React.useEffect(() => {
     if (accounts == null) {
@@ -85,8 +66,7 @@ export default function AccountListView ({ accountClass }: Props): React.ReactEl
             marginRight: '5%',
             justifyContent: 'center'
           }}
-        >
-        </Divider>
+        />
         {
           accounts?.map((account, i) => (<AccountCard key={i} account={account}></AccountCard>))
         }
