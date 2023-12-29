@@ -18,46 +18,29 @@ func NewFinanceController(db *gorm.DB, router *gin.RouterGroup) {
 	router.GET("/networth", financeController.CalculateNetWorth)
 }
 
-func CalculateTotalAssetValue(db *gorm.DB) (float64, error) {
-	assets, err := models.GetAllAccountsByClass(db, models.Asset)
+func CalculateTotalValue(db *gorm.DB, class models.AccountClass) (float64, error) {
+	assets, err := models.GetAllAccountsByClass(db, class)
 	if err != nil {
 		return 0, err
 	}
 
-	var totalAssets float64
+	var total float64
 	for _, asset := range assets {
 		assetValue, err := models.GetLastAccountValue(db, asset.Name)
 		if err != nil {
 			return 0, err
 		}
-		totalAssets += assetValue.Value
+		total += assetValue.Value
 	}
-	return totalAssets, nil
-}
-
-func CalculateTotalLiabilityValue(db *gorm.DB) (float64, error) {
-	liabilities, err := models.GetAllAccountsByClass(db, models.Liability)
-	if err != nil {
-		return 0, err
-	}
-
-	var totalLiabilities float64
-	for _, liability := range liabilities {
-		liabilityValue, err := models.GetLastAccountValue(db, liability.Name)
-		if err != nil {
-			return 0, err
-		}
-		totalLiabilities += liabilityValue.Value
-	}
-	return totalLiabilities, nil
+	return total, nil
 }
 
 func (fc *FinanceController) CalculateNetWorth(context *gin.Context) {
-	totalAssets, err := CalculateTotalAssetValue(fc.DB)
+	totalAssets, err := CalculateTotalValue(fc.DB, models.Asset)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
-	totalLiabilities, err := CalculateTotalLiabilityValue(fc.DB)
+	totalLiabilities, err := CalculateTotalValue(fc.DB, models.Liability)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
