@@ -1,3 +1,4 @@
+import React from 'react'
 import {
   Grid,
   Paper,
@@ -6,7 +7,8 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow
+  TableRow,
+  Typography
 } from '@mui/material'
 import {
   CategoryScale,
@@ -19,7 +21,6 @@ import {
   Title,
   Tooltip
 } from 'chart.js'
-import React from 'react'
 import { Line } from 'react-chartjs-2'
 import { type Account, GetAccountByName } from '../lib/api'
 import moneyFormatter from '../lib/formatter'
@@ -53,7 +54,7 @@ export const chartOptions = {
   }
 }
 
-export default function ValuesTableWithChart (): React.ReactElement {
+export default function AccountView (): React.ReactElement {
   const [account, setAccount] = React.useState<Account>()
   const [searchParams] = useSearchParams()
 
@@ -95,13 +96,27 @@ export default function ValuesTableWithChart (): React.ReactElement {
       flex={1}
     >
       <Grid item>
-        <Line options={chartOptions} data={data}/>
-        <TableContainer component={Paper}>
+        <Typography variant="h6" color={'black'} marginBottom={1}>
+          { account.name }
+        </Typography>
+        <Paper sx={{ backgroundColor: 'whitesmoke', borderRadius: 3, padding: 2 }}>
+          <Line options={chartOptions} data={data}/>
+        </Paper>
+        <TableContainer
+          component={Paper}
+          sx={{
+            backgroundColor: 'whitesmoke',
+            marginTop: 1,
+            borderRadius: 3,
+            paddingLeft: 2,
+            paddingRight: 2
+          }}
+        >
           <Table aria-label="accounts table">
             <TableHead>
               <TableRow>
-                <TableCell><b>Date</b></TableCell>
-                <TableCell><b>Value</b></TableCell>
+                <TableCell sx={{ color: 'black' }}><b>Date</b></TableCell>
+                <TableCell sx={{ color: 'black' }}><b>Value</b></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -111,8 +126,8 @@ export default function ValuesTableWithChart (): React.ReactElement {
                     key={i}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                   >
-                    <TableCell component="th" scope="row">{new Date(value.CreatedAt).toLocaleString()}</TableCell>
-                    <TableCell>{moneyFormatter.format(value.value)}</TableCell>
+                    <TableCell component="th" scope="row" sx={{ color: 'black' }}>{new Date(value.CreatedAt).toLocaleString()}</TableCell>
+                    <TableCell sx={{ color: 'black' }}>{moneyFormatter.format(value.value)}</TableCell>
                   </TableRow>
                 ))
               }
