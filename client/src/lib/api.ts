@@ -25,10 +25,11 @@ export const GetAccountByName = async (name: string): Promise<Account> => {
 export const GetAllAccounts = async (): Promise<Account[]> => {
   const response = await Client.get('accounts')
   const accs = response.data as Account[]
-  for (const a of accs) {
-    a.values = []
-  }
   return accs
+}
+
+export const GetNetWorth = async (): Promise<Record<string, number>> => {
+  return (await Client.get('networth')).data as Record<string, number>
 }
 
 export const GetValuesForAccount = async (account: Account): Promise<Account> => {
