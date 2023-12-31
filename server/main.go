@@ -5,6 +5,7 @@ import (
 	"log"
 	"math"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/Jrc356/financial_dashboard/controllers"
@@ -27,14 +28,22 @@ func randomDollarAmount() float64 {
 	return math.Round(val*ratio) / ratio
 }
 
+func getenv(key, fallback string) string {
+	value := os.Getenv(key)
+	if len(value) == 0 {
+		return fallback
+	}
+	return value
+}
+
 func init() {
 	connStr := fmt.Sprintf(
 		"user=%s password=%s host=%s port=%s dbname=%s sslmode=disable",
-		"postgres",
-		"postgres",
-		"10.0.0.202",
-		"5432",
-		"postgres",
+		getenv("DB_USER", "postgres"),
+		getenv("DB_PASSWORD", "postgres"),
+		getenv("DB_HOST", "localhost"),
+		getenv("DB_PORT", "5432"),
+		getenv("DB_NAME", "postgres"),
 	)
 
 	var err error
@@ -138,6 +147,7 @@ func init() {
 }
 
 func main() {
+	println("hi")
 	router := gin.Default()
 	router.Use(static.Serve("/", static.LocalFile("./client/build", true)))
 	router.Use(cors.Default())
