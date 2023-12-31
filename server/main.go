@@ -147,7 +147,6 @@ func init() {
 }
 
 func main() {
-	println("hi")
 	router := gin.Default()
 	router.Use(static.Serve("/", static.LocalFile("./client/build", true)))
 	router.Use(cors.Default())
