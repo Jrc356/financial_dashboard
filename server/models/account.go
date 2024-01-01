@@ -114,7 +114,8 @@ func UpdateAccount(db *gorm.DB, accountName string, updates Account) (Account, e
 		return account, err
 	}
 
-	result := db.Preload("Values", func(db *gorm.DB) *gorm.DB { return db.Order("created_at desc") }).Model(&account).Updates(&updates)
+	updates.Values = account.Values
+	result := db.Model(&account).Omit("Values").Updates(&updates)
 	return account, result.Error
 }
 
