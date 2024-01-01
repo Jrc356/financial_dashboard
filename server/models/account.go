@@ -49,6 +49,9 @@ func ValidateAccount(account Account) error {
 	if account.Name == "" {
 		return fmt.Errorf("no account name provided")
 	}
+	if account.Class == "" {
+		return fmt.Errorf("no account class provided")
+	}
 	switch account.Category {
 	case Cash:
 	case Retirement:
