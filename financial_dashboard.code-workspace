@@ -10,14 +10,4 @@
 			"path": "server"
 		}
 	],
-	"settings": {
-		"go.testTags": "test",
-		"go.buildTags": "test",
-		"go.lintFlags": [
-			"-tags=test"
-		],
-		"go.formatFlags": [
-			"-tags=test"
-		]
-	}
 }
