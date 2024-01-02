@@ -16,36 +16,55 @@ func TestValidateAccount(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "should not error if account is valid",
+			name: "account is valid",
 			account: Account{
-				Name:     "test",
-				Category: Cash,
-				Class:    Asset,
+				Name:      "test",
+				Category:  Retirement,
+				Class:     Asset,
+				TaxBucket: Taxable,
 			},
 			wantErr: false,
 		},
 		{
 			name: "should error if name is blank",
 			account: Account{
-				Name:  "",
-				Class: Asset,
+				Name: "",
 			},
 			wantErr: true,
 		},
 		{
 			name: "should error if class is blank",
 			account: Account{
-				Name:  "test",
-				Class: "",
+				Name:     "test",
+				Class:    "",
+				Category: Cash,
 			},
 			wantErr: true,
 		},
 		{
-			name: "should error if category is unknown",
+			name: "should error if class is invalid",
 			account: Account{
 				Name:     "test",
-				Category: "notreal",
+				Class:    "notreal",
+				Category: Cash,
+			},
+			wantErr: true,
+		},
+		{
+			name: "should error if category is blank",
+			account: Account{
+				Name:     "test",
 				Class:    Asset,
+				Category: "",
+			},
+			wantErr: true,
+		},
+		{
+			name: "should error if category is invalid",
+			account: Account{
+				Name:     "test",
+				Class:    Asset,
+				Category: "notreal",
 			},
 			wantErr: true,
 		},
@@ -55,6 +74,16 @@ func TestValidateAccount(t *testing.T) {
 				Name:      "test",
 				Category:  Retirement,
 				TaxBucket: "",
+			},
+			wantErr: true,
+		},
+		{
+			name: "should error if tax bucket is invalid",
+			account: Account{
+				Name:      "test",
+				Category:  Retirement,
+				Class:     Asset,
+				TaxBucket: "notreal",
 			},
 			wantErr: true,
 		},
@@ -278,6 +307,9 @@ func TestGetAccountByName(t *testing.T) {
 			if err != nil && !test.wantErr {
 				t.Errorf(err.Error())
 			}
+			if err := mock.ExpectationsWereMet(); err != nil {
+				t.Errorf("there were unfulfilled expectations: %s", err)
+			}
 		})
 	}
 
@@ -330,6 +362,9 @@ func TestGetAccountByClass(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			LoadStatements(mock, test.expectedStatements)
 			_, err = GetAllAccountsByClass(db, test.class)
+			if err != nil {
+				println(err.Error())
+			}
 			if err != nil && !test.wantErr {
 				t.Errorf(err.Error())
 			}
@@ -401,7 +436,7 @@ func TestUpdateAccount(t *testing.T) {
 			expectedStatements: []ExpectedStatement{},
 		},
 		{
-			name:    "should fail if account account does not exist",
+			name:    "should fail if account does not exist",
 			wantErr: true,
 			updatedAccount: Account{
 				Name:     "test2",
@@ -477,7 +512,7 @@ func TestDeleteAccount(t *testing.T) {
 			},
 		},
 		{
-			name:        "should fail if account account does not exist",
+			name:        "should fail if account does not exist",
 			wantErr:     true,
 			accountName: "test2",
 			expectedStatements: []ExpectedStatement{

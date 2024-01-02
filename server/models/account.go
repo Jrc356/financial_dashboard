@@ -14,6 +14,23 @@ const (
 	Liability AccountClass = "liability"
 )
 
+func (ac AccountClass) String() string {
+	return string(ac)
+}
+
+func ParseAccountClass(s string) (ac AccountClass, err error) {
+	categories := map[AccountClass]struct{}{
+		Asset:     {},
+		Liability: {},
+	}
+	cls := AccountClass(s)
+	_, ok := categories[cls]
+	if !ok {
+		return ac, fmt.Errorf(`unknown or invalid account class: %s`, s)
+	}
+	return cls, nil
+}
+
 type AccountCategory string
 
 const (
@@ -25,6 +42,27 @@ const (
 	CreditCard AccountCategory = "credit-card"
 )
 
+func (ac AccountCategory) String() string {
+	return string(ac)
+}
+
+func ParseAccountCategory(s string) (ac AccountCategory, err error) {
+	categories := map[AccountCategory]struct{}{
+		Cash:       {},
+		Retirement: {},
+		HSA:        {},
+		RealEstate: {},
+		Loan:       {},
+		CreditCard: {},
+	}
+	cat := AccountCategory(s)
+	_, ok := categories[cat]
+	if !ok {
+		return ac, fmt.Errorf(`unknown or invalid account category: %s`, s)
+	}
+	return cat, nil
+}
+
 type TaxBucket string
 
 const (
@@ -32,6 +70,24 @@ const (
 	Roth        TaxBucket = "roth"
 	Taxable     TaxBucket = "taxable"
 )
+
+func (tb TaxBucket) String() string {
+	return string(tb)
+}
+
+func ParseTaxBucket(s string) (tb TaxBucket, err error) {
+	buckets := map[TaxBucket]struct{}{
+		TaxDeferred: {},
+		Roth:        {},
+		Taxable:     {},
+	}
+	t := TaxBucket(s)
+	_, ok := buckets[t]
+	if !ok {
+		return tb, fmt.Errorf(`unknown or invalid account category: %s`, s)
+	}
+	return t, nil
+}
 
 type Account struct {
 	Name      string          `json:"name" gorm:"primaryKey" binding:"required"`
@@ -52,18 +108,29 @@ func ValidateAccount(account Account) error {
 	if account.Class == "" {
 		return fmt.Errorf("no account class provided")
 	}
-	switch account.Category {
-	case Cash:
-	case Retirement:
+
+	if account.Category == "" {
+		return fmt.Errorf("no account class provided")
+	}
+
+	_, err := ParseAccountCategory(account.Category.String())
+	if err != nil {
+		return err
+	}
+
+	_, err = ParseAccountClass(account.Class.String())
+	if err != nil {
+		return err
+	}
+
+	if account.Category == Retirement {
 		if account.TaxBucket == "" {
 			return fmt.Errorf("no tax bucket provided for retirement account: %s", account.TaxBucket)
 		}
-	case RealEstate:
-	case HSA:
-	case Loan:
-	case CreditCard:
-	default:
-		return fmt.Errorf("unknown or invalid account category: %s", account.Category)
+		_, err := ParseTaxBucket(account.TaxBucket.String())
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
