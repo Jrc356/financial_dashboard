@@ -9,7 +9,7 @@ setup:
 
 .PHONY: dev
 dev:
-	./scripts/run-dev.sh
+	docker compose up --remove-orphans
 
 .PHONY: build
 build: clean build-client build-backend
@@ -20,9 +20,9 @@ build-client:
 
 .PHONY: build-backend
 build-backend:
-	go build -o app .
+	cd server && go build -o app .
 
 .PHONY: clean
 clean:
-	rm app
+	rm server/app
 	rm -r client/build
