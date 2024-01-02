@@ -32,13 +32,6 @@ export const GetNetWorth = async (): Promise<Record<string, number>> => {
   return (await Client.get('networth')).data as Record<string, number>
 }
 
-export const GetValuesForAccount = async (account: Account): Promise<Account> => {
-  const a = { ...account }
-  const response = await Client.get(`accounts/value?name=${encodeURIComponent(account.name)}`)
-  a.values = response.data as AccountValue[]
-  return a
-}
-
 export const GetAllAccountsByClass = async (cls: string): Promise<Account[]> => {
   const response = await Client.get(`accounts?class=${encodeURIComponent(cls)}`)
   return response.data as Account[]

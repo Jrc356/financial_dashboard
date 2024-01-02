@@ -20,10 +20,9 @@ func CreateDatabase() (*gorm.DB, sqlmock.Sqlmock, error) {
 		DriverName:           "postgres",
 		Conn:                 conn,
 		PreferSimpleProtocol: true,
+		WithoutReturning:     true,
 	})
-	db, err := gorm.Open(dialector, &gorm.Config{
-		Logger: nil,
-	})
+	db, err := gorm.Open(dialector, &gorm.Config{})
 	if err != nil {
 		return &gorm.DB{}, nil, err
 	}

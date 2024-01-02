@@ -136,10 +136,10 @@ func ValidateAccount(account Account) error {
 	return nil
 }
 
-func AccountExists(db *gorm.DB, name string) (bool, error) {
+func AccountExists(db *gorm.DB, name string) bool {
 	count := int64(0)
 	db.Model(&Account{}).Where("name = ?", name).Count(&count)
-	return count > 0, nil
+	return count > 0
 
 }
 
@@ -165,6 +165,10 @@ func GetAccountByNameWithValues(db *gorm.DB, accountName string) (Account, error
 
 func GetAllAccountsByClass(db *gorm.DB, class AccountClass) ([]Account, error) {
 	var accounts []Account
+	_, err := ParseAccountClass(class.String())
+	if err != nil {
+		return accounts, err
+	}
 	result := db.Preload("Values", func(db *gorm.DB) *gorm.DB { return db.Order("created_at desc") }).Where("class = ?", class).Find(&accounts)
 	return accounts, result.Error
 }

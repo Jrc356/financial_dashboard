@@ -146,10 +146,7 @@ func TestAccountExists(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			LoadStatements(mock, test.expectedStatements)
-			exists, err := AccountExists(db, "test")
-			if err != nil && !test.wantErr {
-				t.Errorf(err.Error())
-			}
+			exists := AccountExists(db, "test")
 			if !exists && test.wantExist {
 				t.Errorf("wanted exist, got nonexistant")
 			}
@@ -245,7 +242,7 @@ func TestGetAllAccounts(t *testing.T) {
 	}
 }
 
-func TestGetAccountByName(t *testing.T) {
+func TestGetAccountByNameWithValues(t *testing.T) {
 	db, mock, err := CreateDatabase()
 	if err != nil {
 		t.Errorf(err.Error())
@@ -362,9 +359,6 @@ func TestGetAccountByClass(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			LoadStatements(mock, test.expectedStatements)
 			_, err = GetAllAccountsByClass(db, test.class)
-			if err != nil {
-				println(err.Error())
-			}
 			if err != nil && !test.wantErr {
 				t.Errorf(err.Error())
 			}
