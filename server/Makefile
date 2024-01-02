@@ -1,2 +1,2 @@
 test:
-	go test -v ./... -cover -tags=test
+	go test -v ./... -coverprofile coverage.out
