@@ -21,7 +21,9 @@ func CreateDatabase() (*gorm.DB, sqlmock.Sqlmock, error) {
 		Conn:                 conn,
 		PreferSimpleProtocol: true,
 	})
-	db, err := gorm.Open(dialector, &gorm.Config{})
+	db, err := gorm.Open(dialector, &gorm.Config{
+		Logger: nil,
+	})
 	if err != nil {
 		return &gorm.DB{}, nil, err
 	}

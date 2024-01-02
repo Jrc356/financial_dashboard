@@ -68,7 +68,7 @@ func (controller *AccountController) GetAccounts(context *gin.Context) {
 	var class models.AccountClass = models.AccountClass(context.Query("class"))
 
 	if name != "" {
-		account, err := models.GetAccountByName(controller.DB, name)
+		account, err := models.GetAccountByNameWithValues(controller.DB, name)
 		if err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return

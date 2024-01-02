@@ -55,6 +55,9 @@ func ValidateAccount(account Account) error {
 	switch account.Category {
 	case Cash:
 	case Retirement:
+		if account.TaxBucket == "" {
+			return fmt.Errorf("no tax bucket provided for retirement account: %s", account.TaxBucket)
+		}
 	case RealEstate:
 	case HSA:
 	case Loan:
@@ -63,17 +66,12 @@ func ValidateAccount(account Account) error {
 		return fmt.Errorf("unknown or invalid account category: %s", account.Category)
 	}
 
-	if account.Category == Retirement && account.TaxBucket == "" {
-		return fmt.Errorf("no tax bucket provided for retirement account: %s", account.TaxBucket)
-	}
 	return nil
 }
 
 func AccountExists(db *gorm.DB, name string) (bool, error) {
 	count := int64(0)
-	if err := db.Model(&Account{}).Where("name = ?", name).Count(&count).Error; err != nil {
-		return false, err
-	}
+	db.Model(&Account{}).Where("name = ?", name).Count(&count)
 	return count > 0, nil
 
 }
@@ -92,7 +90,7 @@ func GetAllAccounts(db *gorm.DB) ([]Account, error) {
 	return accounts, result.Error
 }
 
-func GetAccountByName(db *gorm.DB, accountName string) (Account, error) {
+func GetAccountByNameWithValues(db *gorm.DB, accountName string) (Account, error) {
 	var account Account
 	result := db.Preload("Values", func(db *gorm.DB) *gorm.DB { return db.Order("created_at desc") }).Where("name = ?", accountName).First(&account)
 	return account, result.Error
@@ -109,22 +107,23 @@ func UpdateAccount(db *gorm.DB, accountName string, updates Account) (Account, e
 		return Account{}, err
 	}
 
-	account, err := GetAccountByName(db, accountName)
-	if err != nil {
-		return account, err
+	var account Account
+	result := db.Where("name = ?", accountName).First(&account)
+	if result.Error != nil {
+		return account, result.Error
 	}
 
-	updates.Values = account.Values
-	result := db.Model(&account).Omit("Values").Updates(&updates)
+	result = db.Model(&account).Omit("Values").Updates(&updates)
 	return account, result.Error
 }
 
 func DeleteAccount(db *gorm.DB, accountName string) (Account, error) {
-	account, err := GetAccountByName(db, accountName)
-	if err != nil {
-		return account, err
+	var account Account
+	result := db.Where("name = ?", accountName).First(&account)
+	if result.Error != nil {
+		return account, result.Error
 	}
 
-	result := db.Delete(&account)
+	result = db.Delete(&account)
 	return account, result.Error
 }
