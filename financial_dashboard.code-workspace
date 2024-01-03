@@ -10,4 +10,10 @@
 			"path": "server"
 		}
 	],
+	"settings": {
+		"go.buildTags": "test",
+		"go.lintFlags": [
+			"-tags=test"
+		]
+	}
 }

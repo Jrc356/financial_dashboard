@@ -30,18 +30,18 @@ func NewAccountController(db *gorm.DB, router *gin.RouterGroup) AccountControlle
 func (controller *AccountController) CreateOrUpdateAccount(context *gin.Context) {
 	var account models.Account
 
-	name := context.Query("name")
-	if name == "" {
-		context.JSON(http.StatusBadRequest, gin.H{"error": "Unset parameter 'name' required."})
-		return
-	}
-
 	if err := context.BindJSON(&account); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	exists := models.AccountExists(controller.DB, name)
+	err := models.ValidateAccount(account)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	exists := models.AccountExists(controller.DB, account.Name)
 	if !exists {
 		err := models.CreateAccount(controller.DB, account)
 		if err != nil {
@@ -50,7 +50,7 @@ func (controller *AccountController) CreateOrUpdateAccount(context *gin.Context)
 		}
 	} else {
 		var err error
-		account, err = models.UpdateAccount(controller.DB, name, account)
+		account, err = models.UpdateAccount(controller.DB, account.Name, account)
 		if err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -74,7 +74,7 @@ func (controller *AccountController) GetAccounts(context *gin.Context) {
 	}
 
 	if class != "" {
-		accounts, err := models.GetAllAccountsByClass(controller.DB, class)
+		accounts, err := models.GetAllAccountsByClassWithValues(controller.DB, class)
 		if err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -83,7 +83,7 @@ func (controller *AccountController) GetAccounts(context *gin.Context) {
 		return
 	}
 
-	accounts, err := models.GetAllAccounts(controller.DB)
+	accounts, err := models.GetAllAccountsWithValues(controller.DB)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

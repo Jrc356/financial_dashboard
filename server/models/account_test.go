@@ -3,9 +3,8 @@ package models
 import (
 	"database/sql/driver"
 	"testing"
-	"time"
 
-	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-playground/assert/v2"
 	"gorm.io/gorm"
 )
 
@@ -114,32 +113,16 @@ func TestAccountExists(t *testing.T) {
 		expectedStatements []ExpectedStatement
 	}{
 		{
-			name:      "should find an account that exists",
-			wantErr:   false,
-			wantExist: true,
-			expectedStatements: []ExpectedStatement{
-				{
-					statement: "SELECT .+ FROM \"accounts\"",
-					args: []driver.Value{
-						"test",
-					},
-					returnRows: sqlmock.NewRows([]string{"count"}).AddRow(1),
-				},
-			},
+			name:               "should find an account that exists",
+			wantErr:            false,
+			wantExist:          true,
+			expectedStatements: CreateStatementsAccountExists("test"),
 		},
 		{
-			name:      "should not find account that does not exist",
-			wantErr:   false,
-			wantExist: false,
-			expectedStatements: []ExpectedStatement{
-				{
-					statement: "SELECT .* \"accounts\"",
-					args: []driver.Value{
-						"test",
-					},
-					returnRows: sqlmock.NewRows([]string{"count"}).AddRow(0),
-				},
-			},
+			name:               "should not find account that does not exist",
+			wantErr:            false,
+			wantExist:          false,
+			expectedStatements: CreateStatementsAccountDoesNotExist("test"),
 		},
 	}
 
@@ -182,21 +165,12 @@ func TestCreateAccount(t *testing.T) {
 				Class:     Asset,
 				TaxBucket: Taxable,
 			},
-			expectedStatements: []ExpectedStatement{
-				{
-					statement: "INSERT INTO \"accounts\" .*",
-					args: []driver.Value{
-						"test",
-						Asset,
-						Retirement,
-						Taxable,
-						AnyTime{},
-						AnyTime{},
-						nil,
-					},
-					returnResult: sqlmock.NewResult(1, 1),
-				},
-			},
+			expectedStatements: CreateStatementsCreateAccount(Account{
+				Name:      "test",
+				Category:  Retirement,
+				Class:     Asset,
+				TaxBucket: Taxable,
+			}),
 		},
 		{
 			name: "should not insert invalid account",
@@ -223,7 +197,7 @@ func TestCreateAccount(t *testing.T) {
 	}
 }
 
-func TestGetAllAccounts(t *testing.T) {
+func TestGetAllAccountsWithValues(t *testing.T) {
 	db, mock, err := CreateMockDatabase()
 	if err != nil {
 		t.Errorf(err.Error())
@@ -231,14 +205,33 @@ func TestGetAllAccounts(t *testing.T) {
 	d, _ := db.DB()
 	defer d.Close()
 
-	mock.ExpectQuery("SELECT .* \"accounts\" .*").WillReturnRows(sqlmock.NewRows([]string{"test"}))
-	_, err = GetAllAccounts(db)
+	testAccounts := []Account{
+		{
+			Name:     "test",
+			Class:    Asset,
+			Category: Cash,
+		},
+		{
+			Name:     "test2",
+			Class:    Liability,
+			Category: Loan,
+		},
+	}
+	numValues := 10
+	LoadStatements(mock, CreateStatementsGetAllAccountsWithValues(testAccounts, numValues))
+	resp, err := GetAllAccountsWithValues(db)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+
+	assert.Equal(t, len(testAccounts), len(resp))
+
+	for _, account := range resp {
+		assert.Equal(t, numValues, len(account.Values))
 	}
 }
 
@@ -252,9 +245,10 @@ func TestGetAccountByNameWithValues(t *testing.T) {
 
 	testAccount := Account{
 		Name:     "test",
-		Category: Cash,
 		Class:    Asset,
+		Category: Cash,
 	}
+	numValues := 10
 
 	tests := []struct {
 		name               string
@@ -262,63 +256,63 @@ func TestGetAccountByNameWithValues(t *testing.T) {
 		expectedStatements []ExpectedStatement
 	}{
 		{
-			name:    "should retrieve record if name exists",
-			wantErr: false,
-			expectedStatements: []ExpectedStatement{
-				{
-					statement: "SELECT .* \"accounts\" WHERE name",
-					args: []driver.Value{
-						testAccount.Name,
-					},
-					returnRows: AccountToSQLRow(testAccount),
-				},
-				{
-					statement: "SELECT .* \"account_values\"",
-					args: []driver.Value{
-						testAccount.Name,
-					},
-					returnRows: sqlmock.NewRows([]string{"ID", "AccountName", "Value", "CreatedAt"}).AddRow("1", "test", "0", time.Now()),
-				},
-			},
+			name:               "should retrieve record if name exists",
+			wantErr:            false,
+			expectedStatements: CreateStatementsGetAccountsByNameWithValues(testAccount, numValues),
 		},
 		{
-			name:    "should error if name does not exist",
-			wantErr: true,
-			expectedStatements: []ExpectedStatement{
-				{
-					statement: "SELECT .* \"accounts\" WHERE name",
-					args: []driver.Value{
-						"test",
-					},
-					returnRows:  nil,
-					returnError: gorm.ErrRecordNotFound,
-				},
-			},
+			name:               "should error if name does not exist",
+			wantErr:            true,
+			expectedStatements: CreateStatementsAccountCannotBeFound("test"),
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			LoadStatements(mock, test.expectedStatements)
-			_, err = GetAccountByNameWithValues(db, "test")
+			account, err := GetAccountByNameWithValues(db, "test")
 			if err != nil && !test.wantErr {
 				t.Errorf(err.Error())
 			}
+			if !test.wantErr {
+				assert.Equal(t, testAccount.Name, account.Name)
+				assert.Equal(t, numValues, len(account.Values))
+			}
+
 			if err := mock.ExpectationsWereMet(); err != nil {
 				t.Errorf("there were unfulfilled expectations: %s", err)
 			}
 		})
 	}
-
 }
 
-func TestGetAccountByClass(t *testing.T) {
+func TestGetAccountByClassWithValues(t *testing.T) {
 	db, mock, err := CreateMockDatabase()
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 	d, _ := db.DB()
 	defer d.Close()
+
+	accountClass := Asset
+	numValues := 10
+	testAccounts := []Account{
+		{
+			Name:     "test",
+			Class:    accountClass,
+			Category: Cash,
+		},
+		{
+			Name:     "test2",
+			Class:    accountClass,
+			Category: Cash,
+		},
+		{
+			Name:     "test3",
+			Class:    accountClass,
+			Category: Cash,
+		},
+	}
 
 	tests := []struct {
 		name               string
@@ -327,25 +321,10 @@ func TestGetAccountByClass(t *testing.T) {
 		expectedStatements []ExpectedStatement
 	}{
 		{
-			name:    "should get all accounts by valid class",
-			wantErr: false,
-			class:   Asset,
-			expectedStatements: []ExpectedStatement{
-				{
-					statement: "SELECT .* \"accounts\" WHERE class",
-					args: []driver.Value{
-						Asset,
-					},
-					returnRows: sqlmock.NewRows([]string{"Name"}).AddRow("test"),
-				},
-				{
-					statement: "SELECT .* \"account_values\"",
-					args: []driver.Value{
-						"test",
-					},
-					returnRows: sqlmock.NewRows([]string{"ID", "AccountName", "Value", "CreatedAt"}).AddRow("1", "test", "0", time.Now()),
-				},
-			},
+			name:               "should get all accounts by valid class",
+			wantErr:            false,
+			class:              Asset,
+			expectedStatements: CreateStatementsGetAccountsByClassWithValues(accountClass.String(), testAccounts, numValues),
 		},
 		{
 			name:               "should error if class is invalid",
@@ -358,9 +337,16 @@ func TestGetAccountByClass(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			LoadStatements(mock, test.expectedStatements)
-			_, err = GetAllAccountsByClass(db, test.class)
+			accounts, err := GetAllAccountsByClassWithValues(db, test.class)
 			if err != nil && !test.wantErr {
 				t.Errorf(err.Error())
+			}
+
+			if !test.wantErr {
+				assert.Equal(t, len(testAccounts), len(accounts))
+				for _, account := range accounts {
+					assert.Equal(t, numValues, len(account.Values))
+				}
 			}
 
 			if err := mock.ExpectationsWereMet(); err != nil {
@@ -391,33 +377,20 @@ func TestUpdateAccount(t *testing.T) {
 		expectedStatements []ExpectedStatement
 	}{
 		{
-			name:    "happy path - valid update for existing account",
+			name:    "should perform a valid update for existing account",
 			wantErr: false,
 			updatedAccount: Account{
 				Name:     "test",
 				Category: HSA,
 				Class:    Asset,
 			},
-			expectedStatements: []ExpectedStatement{
-				{
-					statement: "SELECT .* \"accounts\" WHERE name",
-					args: []driver.Value{
-						"test",
-					},
-					returnRows: AccountToSQLRow(testAccount),
-				},
-				{
-					statement: "UPDATE \"accounts\"",
-					args: []driver.Value{
-						"test",
-						Asset,
-						HSA,
-						AnyTime{},
-						"test",
-					},
-					returnResult: sqlmock.NewResult(1, 1),
-				},
-			},
+			expectedStatements: CreateStatementsUpdateAccount(testAccount, []driver.Value{
+				"test",
+				Asset,
+				HSA,
+				AnyTime{},
+				"test",
+			}),
 		},
 		{
 			name:    "should fail if update is an invalid account",
@@ -437,24 +410,19 @@ func TestUpdateAccount(t *testing.T) {
 				Category: HSA,
 				Class:    Asset,
 			},
-			expectedStatements: []ExpectedStatement{
-				{
-					statement: "SELECT .* \"accounts\" WHERE name",
-					args: []driver.Value{
-						"test2",
-					},
-					returnError: gorm.ErrRecordNotFound,
-				},
-			},
+			expectedStatements: CreateStatementsAccountCannotBeFound("test2"),
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			LoadStatements(mock, test.expectedStatements)
-			_, err = UpdateAccount(db, test.updatedAccount.Name, test.updatedAccount)
+			update, err := UpdateAccount(db, test.updatedAccount.Name, test.updatedAccount)
 			if err != nil && !test.wantErr {
 				t.Errorf(err.Error())
+			}
+			if !test.wantErr {
+				assert.Equal(t, testAccount.Name, update.Name)
 			}
 			if err := mock.ExpectationsWereMet(); err != nil && !test.wantErr {
 				t.Errorf("there were unfulfilled expectations: %s", err)
@@ -484,26 +452,10 @@ func TestDeleteAccount(t *testing.T) {
 		expectedStatements []ExpectedStatement
 	}{
 		{
-			name:        "successfully deletes existing account",
-			wantErr:     false,
-			accountName: "test",
-			expectedStatements: []ExpectedStatement{
-				{
-					statement: "SELECT .* \"accounts\" WHERE name",
-					args: []driver.Value{
-						"test",
-					},
-					returnRows: AccountToSQLRow(testAccount),
-				},
-				{
-					statement: "UPDATE \"accounts\" SET \"deleted_at\"",
-					args: []driver.Value{
-						AnyTime{},
-						"test",
-					},
-					returnResult: sqlmock.NewResult(1, 1),
-				},
-			},
+			name:               "successfully deletes existing account",
+			wantErr:            false,
+			accountName:        "test",
+			expectedStatements: CreateStatementsDeleteAccount(testAccount),
 		},
 		{
 			name:        "should fail if account does not exist",
@@ -524,9 +476,12 @@ func TestDeleteAccount(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			LoadStatements(mock, test.expectedStatements)
-			_, err = DeleteAccount(db, test.accountName)
+			account, err := DeleteAccount(db, test.accountName)
 			if err != nil && !test.wantErr {
 				t.Errorf(err.Error())
+			}
+			if !test.wantErr {
+				assert.NotEqual(t, "", account.DeletedAt)
 			}
 			if err := mock.ExpectationsWereMet(); err != nil && !test.wantErr {
 				t.Errorf("there were unfulfilled expectations: %s", err)

@@ -91,8 +91,8 @@ func ParseTaxBucket(s string) (tb TaxBucket, err error) {
 
 type Account struct {
 	Name      string          `json:"name" gorm:"primaryKey" binding:"required"`
-	Class     AccountClass    `json:"class"`
-	Category  AccountCategory `json:"category"`
+	Class     AccountClass    `json:"class" binding:"required"`
+	Category  AccountCategory `json:"category" binding:"required"`
 	TaxBucket TaxBucket       `json:"taxBucket"`
 	Values    []AccountValue  `json:"values" gorm:"foreignKey:AccountName;references:Name"`
 
@@ -144,14 +144,11 @@ func AccountExists(db *gorm.DB, name string) bool {
 }
 
 func CreateAccount(db *gorm.DB, account Account) error {
-	if err := ValidateAccount(account); err != nil {
-		return err
-	}
 	result := db.Create(&account)
 	return result.Error
 }
 
-func GetAllAccounts(db *gorm.DB) ([]Account, error) {
+func GetAllAccountsWithValues(db *gorm.DB) ([]Account, error) {
 	var accounts []Account
 	result := db.Preload("Values", func(db *gorm.DB) *gorm.DB { return db.Order("created_at desc") }).Find(&accounts)
 	return accounts, result.Error
@@ -163,7 +160,7 @@ func GetAccountByNameWithValues(db *gorm.DB, accountName string) (Account, error
 	return account, result.Error
 }
 
-func GetAllAccountsByClass(db *gorm.DB, class AccountClass) ([]Account, error) {
+func GetAllAccountsByClassWithValues(db *gorm.DB, class AccountClass) ([]Account, error) {
 	var accounts []Account
 	_, err := ParseAccountClass(class.String())
 	if err != nil {
@@ -184,7 +181,7 @@ func UpdateAccount(db *gorm.DB, accountName string, updates Account) (Account, e
 		return account, result.Error
 	}
 
-	result = db.Model(&account).Omit("Values").Updates(&updates)
+	result = db.Model(&account).Updates(&updates)
 	return account, result.Error
 }
 

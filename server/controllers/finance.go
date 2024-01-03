@@ -19,11 +19,11 @@ func NewFinanceController(db *gorm.DB, router *gin.RouterGroup) {
 }
 
 func (fc *FinanceController) GetNetWorthOverTime(context *gin.Context) {
-	assets, err := models.GetAllAccountsByClass(fc.DB, models.Asset)
+	assets, err := models.GetAllAccountsByClassWithValues(fc.DB, models.Asset)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
-	liabilities, err := models.GetAllAccountsByClass(fc.DB, models.Liability)
+	liabilities, err := models.GetAllAccountsByClassWithValues(fc.DB, models.Liability)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
