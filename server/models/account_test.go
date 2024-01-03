@@ -100,7 +100,7 @@ func TestValidateAccount(t *testing.T) {
 }
 
 func TestAccountExists(t *testing.T) {
-	db, mock, err := CreateDatabase()
+	db, mock, err := CreateMockDatabase()
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -158,7 +158,7 @@ func TestAccountExists(t *testing.T) {
 }
 
 func TestCreateAccount(t *testing.T) {
-	db, mock, err := CreateDatabase()
+	db, mock, err := CreateMockDatabase()
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -224,7 +224,7 @@ func TestCreateAccount(t *testing.T) {
 }
 
 func TestGetAllAccounts(t *testing.T) {
-	db, mock, err := CreateDatabase()
+	db, mock, err := CreateMockDatabase()
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -243,7 +243,7 @@ func TestGetAllAccounts(t *testing.T) {
 }
 
 func TestGetAccountByNameWithValues(t *testing.T) {
-	db, mock, err := CreateDatabase()
+	db, mock, err := CreateMockDatabase()
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -313,7 +313,7 @@ func TestGetAccountByNameWithValues(t *testing.T) {
 }
 
 func TestGetAccountByClass(t *testing.T) {
-	db, mock, err := CreateDatabase()
+	db, mock, err := CreateMockDatabase()
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -371,7 +371,7 @@ func TestGetAccountByClass(t *testing.T) {
 }
 
 func TestUpdateAccount(t *testing.T) {
-	db, mock, err := CreateDatabase()
+	db, mock, err := CreateMockDatabase()
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -464,7 +464,7 @@ func TestUpdateAccount(t *testing.T) {
 }
 
 func TestDeleteAccount(t *testing.T) {
-	db, mock, err := CreateDatabase()
+	db, mock, err := CreateMockDatabase()
 	if err != nil {
 		t.Errorf(err.Error())
 	}

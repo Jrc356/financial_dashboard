@@ -9,7 +9,7 @@ import (
 )
 
 func TestCreateAccountValue(t *testing.T) {
-	db, mock, err := CreateDatabase()
+	db, mock, err := CreateMockDatabase()
 	if err != nil {
 		t.Errorf(err.Error())
 	}

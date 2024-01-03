@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func CreateDatabase() (*gorm.DB, sqlmock.Sqlmock, error) {
+func CreateMockDatabase() (*gorm.DB, sqlmock.Sqlmock, error) {
 	conn, mock, err := sqlmock.New()
 	if err != nil {
 		return &gorm.DB{}, nil, err
