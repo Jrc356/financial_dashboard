@@ -3,9 +3,11 @@
 ## TODO
 
 - maint: add ts tests
+- maint: add gha pipeline
+- maint: add precommit hooks
 - maint: add ID to Accounts
-- maint: replace gorm?
 - maint: remove browser router
+- maint: replace gorm?
 - feat: login functionality
 - feat: budget functionality
 - feat: insights
