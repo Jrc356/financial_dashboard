@@ -3,8 +3,8 @@
 ## TODO
 
 - maint: add ts tests
-- maint: add gha pipeline
 - maint: add precommit hooks
+- maint: add gha pipeline
 - maint: add ID to Accounts
 - maint: remove browser router
 - maint: replace gorm?
