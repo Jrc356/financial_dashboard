@@ -14,6 +14,7 @@
 
 ## DOING
 
-- maint: add go tests
 
 ## DONE
+
+- maint: add go tests
