@@ -339,7 +339,6 @@ func TestCreateAccountValue(t *testing.T) {
 			models.LoadStatements(mock, test.expectedStatements)
 			req, _ := http.NewRequest(test.method, test.url, test.body)
 			router.ServeHTTP(w, req)
-			println(w.Body.String())
 			assert.Equal(t, test.responseCode, w.Code)
 		})
 	}
