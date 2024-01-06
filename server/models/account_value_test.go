@@ -2,6 +2,8 @@ package models
 
 import (
 	"testing"
+
+	"github.com/shopspring/decimal"
 )
 
 func TestCreateAccountValue(t *testing.T) {
@@ -14,7 +16,7 @@ func TestCreateAccountValue(t *testing.T) {
 
 	testAccountValue := AccountValue{
 		AccountName: "test",
-		Value:       1.01,
+		Value:       decimal.NewFromFloat(1.01),
 	}
 
 	tests := []struct {
@@ -34,7 +36,7 @@ func TestCreateAccountValue(t *testing.T) {
 			wantErr: true,
 			accountValue: AccountValue{
 				AccountName: "test",
-				Value:       1.01,
+				Value:       decimal.NewFromFloat(1.01),
 			},
 			expectedStatements: CreateStatementsAccountCannotBeFound(testAccountValue.AccountName),
 		},

@@ -4,20 +4,23 @@ package models
 
 import (
 	"database/sql/driver"
-	"math"
+	"fmt"
 	"math/rand"
 	"strings"
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/shopspring/decimal"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-func randomDollarAmount() float64 {
-	val := rand.Float64() * float64(rand.Int63n(10000))
-	ratio := math.Pow(10, 2)
-	return math.Round(val*ratio) / ratio
+func randomDollarAmount() decimal.Decimal {
+	dollars := rand.Int31()
+	change := rand.Float64()
+	amount := fmt.Sprintf("%d%.2f", dollars, change)
+	d, _ := decimal.NewFromString(amount)
+	return d
 }
 
 func CreateMockDatabase() (*gorm.DB, sqlmock.Sqlmock, error) {
@@ -168,7 +171,7 @@ func CreateStatementsGetAllAccountsWithValues(accounts []Account, valuesPerAccou
 	}
 }
 
-func CreateStatementsGetAccountsByNameWithValues(account Account, numValues int) []ExpectedStatement {
+func CreateStatementsGetAccountByNameWithValues(account Account, numValues int) []ExpectedStatement {
 	return []ExpectedStatement{
 		{
 			statement: "SELECT .* \"accounts\" WHERE name",

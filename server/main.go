@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"math"
 	"math/rand"
 	"os"
 	"time"
@@ -13,6 +12,7 @@ import (
 	"github.com/gin-gonic/contrib/cors"
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
+	"github.com/shopspring/decimal"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -22,10 +22,11 @@ var (
 	db *gorm.DB
 )
 
-func randomDollarAmount() float64 {
-	val := rand.Float64() * float64(rand.Int63n(10000))
-	ratio := math.Pow(10, 2)
-	return math.Round(val*ratio) / ratio
+func randomDollarAmount() decimal.Decimal {
+	dollars := rand.Int63()
+	change := rand.Float64()
+	d, _ := decimal.NewFromString(fmt.Sprintf("%d.%f", dollars, change))
+	return d
 }
 
 func getenv(key, fallback string) string {

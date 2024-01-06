@@ -31,32 +31,37 @@ func (controller *AccountController) CreateOrUpdateAccount(context *gin.Context)
 	var account models.Account
 
 	if err := context.BindJSON(&account); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	err := models.ValidateAccount(account)
 	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	exists := models.AccountExists(controller.DB, account.Name)
+	exists, err := models.AccountExists(controller.DB, account.Name)
+	if err != nil {
+		context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	if !exists {
 		err := models.CreateAccount(controller.DB, account)
 		if err != nil {
-			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
+			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		} else {
+			context.JSON(http.StatusCreated, account)
 		}
 	} else {
 		var err error
 		account, err = models.UpdateAccount(controller.DB, account.Name, account)
 		if err != nil {
-			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
+			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		} else {
+			context.JSON(http.StatusOK, account)
 		}
 	}
-	context.JSON(http.StatusOK, account)
 }
 
 func (controller *AccountController) GetAccounts(context *gin.Context) {
@@ -65,8 +70,12 @@ func (controller *AccountController) GetAccounts(context *gin.Context) {
 
 	if name != "" {
 		account, err := models.GetAccountByNameWithValues(controller.DB, name)
+		if err == gorm.ErrRecordNotFound {
+			context.AbortWithStatusJSON(http.StatusNotFound, account)
+			return
+		}
 		if err != nil {
-			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 		context.JSON(http.StatusOK, account)
@@ -74,9 +83,14 @@ func (controller *AccountController) GetAccounts(context *gin.Context) {
 	}
 
 	if class != "" {
+		_, err := models.ParseAccountClass(class.String())
+		if err != nil {
+			context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 		accounts, err := models.GetAllAccountsByClassWithValues(controller.DB, class)
 		if err != nil {
-			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 		context.JSON(http.StatusOK, accounts)
@@ -85,7 +99,7 @@ func (controller *AccountController) GetAccounts(context *gin.Context) {
 
 	accounts, err := models.GetAllAccountsWithValues(controller.DB)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	context.JSON(http.StatusOK, accounts)
@@ -94,18 +108,22 @@ func (controller *AccountController) GetAccounts(context *gin.Context) {
 func (controller *AccountController) DeleteAccount(context *gin.Context) {
 	name := context.Query("name")
 	if name == "" {
-		context.JSON(http.StatusBadRequest, gin.H{"error": "Unset parameter 'name' required."})
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Unset parameter 'name' required."})
 		return
 	}
 
-	exists := models.AccountExists(controller.DB, name)
+	exists, err := models.AccountExists(controller.DB, name)
+	if err != nil {
+		context.AbortWithStatusJSON(http.StatusInternalServerError, "account does not exist")
+		return
+	}
 	if !exists {
-		context.JSON(http.StatusBadRequest, "Account does not exist")
+		context.AbortWithStatusJSON(http.StatusNotFound, "account does not exist")
 		return
 	} else {
 		account, err := models.DeleteAccount(controller.DB, name)
 		if err != nil {
-			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 		context.JSON(http.StatusOK, account)
@@ -113,26 +131,30 @@ func (controller *AccountController) DeleteAccount(context *gin.Context) {
 }
 
 func (controller *AccountController) CreateAccountValue(context *gin.Context) {
-	name := context.Query("name")
-	if name == "" {
-		context.JSON(http.StatusBadRequest, gin.H{"error": "Unset parameter 'name' required."})
+	var accountValue models.AccountValue
+
+	if err := context.BindJSON(&accountValue); err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	exists := models.AccountExists(controller.DB, name)
+	if accountValue.Value.IsZero() {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": `"value" must be > 0`})
+		return
+	}
+
+	exists, err := models.AccountExists(controller.DB, accountValue.AccountName)
+	if err != nil {
+		context.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+		return
+	}
 	if !exists {
-		context.JSON(http.StatusBadRequest, "Account does not exist")
+		context.AbortWithStatusJSON(http.StatusBadRequest, "Account does not exist")
 		return
 	} else {
-		var accountValue models.AccountValue
-		if err := context.BindJSON(&accountValue); err != nil {
-			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-		accountValue.AccountName = name
 		err := models.CreateAccountValue(controller.DB, accountValue)
 		if err != nil {
-			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 		context.JSON(http.StatusOK, accountValue)

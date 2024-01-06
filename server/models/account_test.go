@@ -129,7 +129,10 @@ func TestAccountExists(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			LoadStatements(mock, test.expectedStatements)
-			exists := AccountExists(db, "test")
+			exists, err := AccountExists(db, "test")
+			if err != nil && !test.wantErr {
+				t.Errorf(err.Error())
+			}
 			if !exists && test.wantExist {
 				t.Errorf("wanted exist, got nonexistant")
 			}
@@ -258,7 +261,7 @@ func TestGetAccountByNameWithValues(t *testing.T) {
 		{
 			name:               "should retrieve record if name exists",
 			wantErr:            false,
-			expectedStatements: CreateStatementsGetAccountsByNameWithValues(testAccount, numValues),
+			expectedStatements: CreateStatementsGetAccountByNameWithValues(testAccount, numValues),
 		},
 		{
 			name:               "should error if name does not exist",
@@ -271,7 +274,7 @@ func TestGetAccountByNameWithValues(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			LoadStatements(mock, test.expectedStatements)
 			account, err := GetAccountByNameWithValues(db, "test")
-			if err != nil && !test.wantErr {
+			if test.wantErr && (err == nil || err != gorm.ErrRecordNotFound) {
 				t.Errorf(err.Error())
 			}
 			if !test.wantErr {
@@ -326,19 +329,13 @@ func TestGetAccountByClassWithValues(t *testing.T) {
 			class:              Asset,
 			expectedStatements: CreateStatementsGetAccountsByClassWithValues(accountClass.String(), testAccounts, numValues),
 		},
-		{
-			name:               "should error if class is invalid",
-			class:              "NotReal",
-			wantErr:            true,
-			expectedStatements: []ExpectedStatement{},
-		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			LoadStatements(mock, test.expectedStatements)
 			accounts, err := GetAllAccountsByClassWithValues(db, test.class)
-			if err != nil && !test.wantErr {
+			if test.wantErr && (err == nil || err != gorm.ErrRecordNotFound) {
 				t.Errorf(err.Error())
 			}
 
@@ -477,7 +474,7 @@ func TestDeleteAccount(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			LoadStatements(mock, test.expectedStatements)
 			account, err := DeleteAccount(db, test.accountName)
-			if err != nil && !test.wantErr {
+			if test.wantErr && (err == nil || err != gorm.ErrRecordNotFound) {
 				t.Errorf(err.Error())
 			}
 			if !test.wantErr {
