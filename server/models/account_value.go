@@ -11,7 +11,7 @@ import (
 type AccountValue struct {
 	ID          uint
 	AccountName string          `json:"account_name" binding:"required"`
-	Value       decimal.Decimal `json:"value" binding:"required,numeric,ne=0" gorm:"type:decimal(7,6)"`
+	Value       decimal.Decimal `json:"value" gorm:"type:decimal(19,2)"`
 	CreatedAt   time.Time
 }
 
