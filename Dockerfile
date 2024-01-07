@@ -6,7 +6,7 @@ RUN CGO_ENABLED=0 go build -o server main.go
 FROM node:18 as client-build
 WORKDIR /app
 COPY client /app
-RUN npm install && npm run build
+RUN npm install --omit=dev && npm run build
 
 FROM gcr.io/distroless/static-debian11 as production
 COPY --from=server-build /app/server /
