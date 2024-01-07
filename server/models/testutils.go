@@ -17,7 +17,7 @@ import (
 
 func randomDollarAmount() decimal.Decimal {
 	dollars := rand.Int31()
-	change := rand.Float64()
+	change := rand.Float32()
 	amount := fmt.Sprintf("%d%.2f", dollars, change)
 	d, _ := decimal.NewFromString(amount)
 	return d
