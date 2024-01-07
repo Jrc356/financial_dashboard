@@ -5,6 +5,7 @@ setup:
 		nodejs \
 		golang \
 		postgresql
+	@[ -f .git/hooks/pre-commit ] || cp scripts/pre-commit.sh .git/hooks/pre-commit
 
 .PHONY: dev
 dev:
