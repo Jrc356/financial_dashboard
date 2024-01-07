@@ -23,9 +23,13 @@ var (
 )
 
 func randomDollarAmount() decimal.Decimal {
-	dollars := rand.Int63()
-	change := rand.Float64()
-	d, _ := decimal.NewFromString(fmt.Sprintf("%d.%f", dollars, change))
+	dollars := rand.Intn(100000)
+	change := rand.Float32()
+	amount := fmt.Sprintf("%d%.2f", dollars, change)
+	d, err := decimal.NewFromString(amount)
+	if err != nil {
+		panic(err)
+	}
 	return d
 }
 
