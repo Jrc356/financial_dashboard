@@ -18,7 +18,6 @@ import {
 import { Line } from 'react-chartjs-2'
 import { GetNetWorth } from '../lib/api'
 import moneyFormatter from '../lib/formatter'
-// import moneyFormatter from '../lib/formatter'
 
 ChartJS.register(
   CategoryScale,
