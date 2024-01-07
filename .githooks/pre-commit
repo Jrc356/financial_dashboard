@@ -1,0 +1,15 @@
+#!/bin/sh
+
+changed="$(git diff --name-only --cached)"
+
+if echo "$changed" | grep -q "server/"; then
+  cd server
+  make test
+  cd ..
+fi
+
+if echo "$changed" | grep -q "client/"; then
+  cd client
+  CI=true npm test
+  cd ..
+fi

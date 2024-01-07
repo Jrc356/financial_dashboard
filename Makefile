@@ -1,11 +1,12 @@
 .PHONY: setup
 setup:
-	@which node || curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-	@sudo apt install -y \
+	which node || curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+	sudo apt install -y \
 		nodejs \
 		golang \
 		postgresql
-	@[ -f .git/hooks/pre-commit ] || cp scripts/pre-commit.sh .git/hooks/pre-commit
+
+	cp .githooks/* .git/hooks/
 
 .PHONY: dev
 dev:
