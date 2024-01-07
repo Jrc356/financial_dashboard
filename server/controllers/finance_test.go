@@ -29,68 +29,6 @@ func TestNewFinanceController(t *testing.T) {
 	assert.Equal(t, controller.DB, db)
 }
 
-func TestGetLast(t *testing.T) {
-	now := time.Now()
-	tests := []struct {
-		name   string
-		index  int
-		values []models.AccountValue
-		want   decimal.Decimal
-	}{
-		{
-			name:  "base case",
-			index: 1,
-			want:  decimal.NewFromInt(1),
-			values: []models.AccountValue{
-				{
-					AccountName: "test",
-					Value:       decimal.Zero,
-					CreatedAt:   now,
-				},
-				{
-					AccountName: "test",
-					Value:       decimal.Zero,
-					CreatedAt:   now.Add(-24 * time.Hour),
-				},
-				{
-					AccountName: "test",
-					Value:       decimal.Zero,
-					CreatedAt:   now.Add(-24 * 2 * time.Hour),
-				},
-				{
-					AccountName: "test",
-					Value:       decimal.Zero,
-					CreatedAt:   now.Add(-24 * 3 * time.Hour),
-				},
-				{
-					AccountName: "test",
-					Value:       decimal.NewFromInt(1),
-					CreatedAt:   now.Add(-24 * 4 * time.Hour),
-				},
-			},
-		},
-		{
-			name:  "no previous value should return zero",
-			index: 1,
-			want:  decimal.Zero,
-			values: []models.AccountValue{
-				{
-					AccountName: "test",
-					Value:       decimal.Zero,
-					CreatedAt:   now,
-				},
-			},
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			got := getLastValue(test.index, test.values)
-			assert.Equal(t, test.want, got)
-		})
-	}
-}
-
 func TestMapToSortedList(t *testing.T) {
 	now := time.Now()
 	tests := []struct {

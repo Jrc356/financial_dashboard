@@ -34,19 +34,6 @@ type NetWorthPoint struct {
 	Value decimal.Decimal `json:"value"`
 }
 
-func getLastValue(index int, sortedAccountValues []models.AccountValue) decimal.Decimal {
-	// assumes account values are sorted by created_at desc
-	if index > len(sortedAccountValues)-1 {
-		return decimal.Zero
-	}
-
-	if sortedAccountValues[index].Value.GreaterThan(decimal.Zero) {
-		return sortedAccountValues[index].Value
-	}
-
-	return getLastValue(index+1, sortedAccountValues)
-}
-
 // returns a sorted map by descending timestamps
 func mapToSortedList(values map[time.Time]decimal.Decimal) []NetWorthPoint {
 	times := []time.Time{}
