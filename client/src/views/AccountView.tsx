@@ -83,7 +83,7 @@ export default function AccountView (): React.ReactElement {
 
   for (const value of account.values) {
     data.labels.unshift(new Date(value.CreatedAt).toLocaleString())
-    data.datasets[0].data.unshift(value.value)
+    data.datasets[0].data.unshift(Number(value.value))
   }
 
   return (
@@ -127,7 +127,7 @@ export default function AccountView (): React.ReactElement {
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                   >
                     <TableCell component="th" scope="row" sx={{ color: 'black' }}>{new Date(value.CreatedAt).toLocaleString()}</TableCell>
-                    <TableCell sx={{ color: 'black' }}>{moneyFormatter.format(value.value)}</TableCell>
+                    <TableCell sx={{ color: 'black' }}>{moneyFormatter.format(Number(value.value))}</TableCell>
                   </TableRow>
                 ))
               }

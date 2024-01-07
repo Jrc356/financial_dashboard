@@ -16,7 +16,7 @@ import {
   Tooltip
 } from 'chart.js'
 import { Line } from 'react-chartjs-2'
-import { GetNetWorth } from '../lib/api'
+import { GetNetWorth, type NetworthPoint } from '../lib/api'
 import moneyFormatter from '../lib/formatter'
 
 ChartJS.register(
@@ -48,7 +48,7 @@ const chartOptions = {
 }
 
 export default function NetworthGraph (): React.ReactElement {
-  const [networth, setNetworth] = React.useState<Record<string, number>>()
+  const [networth, setNetworth] = React.useState<NetworthPoint[]>()
 
   React.useEffect(() => {
     GetNetWorth()
@@ -73,9 +73,9 @@ export default function NetworthGraph (): React.ReactElement {
     }]
   }
 
-  for (const entry of Object.entries(networth)) {
-    data.labels.push(new Date(entry[0]).toLocaleString())
-    data.datasets[0].data.push(entry[1])
+  for (const entry of networth) {
+    data.labels.unshift(entry.date.toLocaleString())
+    data.datasets[0].data.unshift(entry.value)
   }
 
   return (
@@ -83,7 +83,7 @@ export default function NetworthGraph (): React.ReactElement {
       <Typography variant="h6" color={'black'} marginTop={6}>
         Networth
       </Typography>
-      <Typography variant="h2" color={'black'}>
+      <Typography variant="h3" color={'black'}>
         {moneyFormatter.format(data.datasets[0].data[data.datasets[0].data.length - 1])}
       </Typography>
       <Paper sx={{ backgroundColor: 'whitesmoke', borderRadius: 3, padding: 2, width: 330, margin: 2 }}>

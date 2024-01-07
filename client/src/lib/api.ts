@@ -9,30 +9,38 @@ export interface Account {
 }
 
 export interface AccountValue {
-  value: number
+  value: string
   CreatedAt: string
 }
 
+export interface NetworthPoint {
+  date: Date
+  value: number
+}
+
 export const Client = axios.create({
-  baseURL: 'http://localhost:8080/api/'
+  baseURL: 'http://localhost:8080/api/',
+  headers: {
+    'Content-Type': 'application/json'
+  }
 })
 
 export const GetAccountByName = async (name: string): Promise<Account> => {
-  const response = await Client.get(`accounts?name=${name}`)
-  return response.data as Account
+  const response = await Client.get<Account>(`accounts?name=${name}`)
+  return response.data
 }
 
 export const GetAllAccounts = async (): Promise<Account[]> => {
-  const response = await Client.get('accounts')
-  const accs = response.data as Account[]
+  const response = await Client.get<Account[]>('accounts')
+  const accs = response.data
   return accs
 }
 
-export const GetNetWorth = async (): Promise<Record<string, number>> => {
-  return (await Client.get('networth')).data as Record<string, number>
+export const GetNetWorth = async (): Promise<NetworthPoint[]> => {
+  return (await Client.get<NetworthPoint[]>('networth')).data
 }
 
 export const GetAllAccountsByClass = async (cls: string): Promise<Account[]> => {
-  const response = await Client.get(`accounts?class=${encodeURIComponent(cls)}`)
-  return response.data as Account[]
+  const response = await Client.get<Account[]>(`accounts?class=${encodeURIComponent(cls)}`)
+  return response.data
 }

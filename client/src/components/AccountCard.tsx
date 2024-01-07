@@ -55,7 +55,7 @@ export default function AccountCard ({ account }: Props): React.ReactElement {
                 paddingTop={3}
               >
                 {account.values.length > 0 &&
-                  moneyFormatter.format(account.values[0].value)}
+                  moneyFormatter.format(Number(account.values[0].value))}
               </Typography>
             </Box>
             <Box sx={{

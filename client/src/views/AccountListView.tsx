@@ -32,10 +32,13 @@ export default function AccountListView ({ accountClass }: Props): React.ReactEl
     if (accounts == null) {
       return
     }
+    // TODO: this isn't right
     let v = 0
     for (const account of accounts) {
       if (account.values.length > 0) {
-        v += account.values[0].value
+        console.log(account.values[0].value)
+        console.log(typeof account.values[0].value)
+        v += Number(account.values[0].value)
       }
     }
     setTotalValue(v)
@@ -54,7 +57,7 @@ export default function AccountListView ({ accountClass }: Props): React.ReactEl
         <Typography variant="h6" color={'black'} marginTop={6}>
           Total {toTitleCase(accountClass)} Value:
         </Typography>
-        <Typography variant="h2" color={'black'}>{moneyFormatter.format(totalValue)}</Typography>
+        <Typography variant="h3" color={'black'}>{moneyFormatter.format(totalValue)}</Typography>
         <Divider
           sx={{
             marginTop: 6,
