@@ -3,7 +3,7 @@
 ## TODO
 
 - maint: add ts tests
-- maint: add precommit hooks
+  - messed with this a bit and ran into issues where .test.tsx files were being typechecked in npm start
 - maint: add gha pipeline
 - maint: add ID to Accounts
 - maint: remove browser router
@@ -17,3 +17,4 @@
 ## DONE
 
 - maint: add go tests
+- maint: add precommit hooks
