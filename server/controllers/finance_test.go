@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -469,6 +470,9 @@ func TestGetNetworthOverTime(t *testing.T) {
 	d, _ := db.DB()
 	defer d.Close()
 
+	dateRegex := "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(-[0-9]{2}:[0-9]{2})?Z?"
+	responseRegex := fmt.Sprintf(`(\[{"date":"%s","value":".*"}\])+`, dateRegex)
+
 	tests := []struct {
 		name               string
 		method             string
@@ -483,7 +487,7 @@ func TestGetNetworthOverTime(t *testing.T) {
 			method:       "GET",
 			url:          "/api/networth",
 			responseCode: http.StatusOK,
-			responseBody: `(\[{"date":"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}-[0-9]{2}:[0-9]{2}","value":".*"}\])+`,
+			responseBody: responseRegex,
 			expectedStatements: models.CreateStatementsGetAllAccountsWithValues([]models.Account{
 				{
 					Name:     "test",
@@ -512,7 +516,7 @@ func TestGetNetworthOverTime(t *testing.T) {
 			method:       "GET",
 			url:          "/api/networth",
 			responseCode: http.StatusOK,
-			responseBody: `(\[{"date":"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}-[0-9]{2}:[0-9]{2}","value":".*"}\])+`,
+			responseBody: responseRegex,
 			expectedStatements: models.CreateStatementsGetAllAccountsWithValues([]models.Account{
 				{
 					Name:     "test",
@@ -541,7 +545,7 @@ func TestGetNetworthOverTime(t *testing.T) {
 			method:       "GET",
 			url:          "/api/networth",
 			responseCode: http.StatusOK,
-			responseBody: `(\[{"date":"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}-[0-9]{2}:[0-9]{2}","value":".*"}\])+`,
+			responseBody: responseRegex,
 			expectedStatements: models.CreateStatementsGetAllAccountsWithValues([]models.Account{
 				{
 					Name:     "test",
