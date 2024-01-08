@@ -1,1 +1,7 @@
 node_modules
+client/.eslintrc.json
+client/.gitignore
+client/.prettierrc
+client/README.md
+
+server/air.toml
