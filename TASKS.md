@@ -13,9 +13,8 @@
 
 ## DOING
 
-- maint: add gha pipeline
-
 ## DONE
 
 - maint: add go tests
 - maint: add precommit hooks
+- maint: add gha pipeline
