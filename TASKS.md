@@ -4,7 +4,6 @@
 
 - maint: add ts tests
   - messed with this a bit and ran into issues where .test.tsx files were being typechecked in npm start
-- maint: add gha pipeline
 - maint: add ID to Accounts
 - maint: remove browser router
 - maint: replace gorm?
@@ -13,6 +12,8 @@
 - feat: insights
 
 ## DOING
+
+- maint: add gha pipeline
 
 ## DONE
 
