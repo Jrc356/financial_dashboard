@@ -36,6 +36,11 @@
       "react-app/jest"
     ]
   },
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/(?!axios)"
+    ]
+  },
   "browserslist": {
     "production": [
       ">0.2%",
@@ -49,6 +54,8 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@babel/preset-typescript": "^7.23.3",
     "@typescript-eslint/eslint-plugin": "^5.60.1",
     "eslint": "^8.44.0",
     "eslint-config-standard-with-typescript": "^36.0.0",
